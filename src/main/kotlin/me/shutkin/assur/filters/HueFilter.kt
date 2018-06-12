@@ -15,7 +15,7 @@ fun hueFilter(source: HDRRaster): HDRRaster {
   val size = samples[0].size
   var minDiff = Double.MAX_VALUE
   var bestShift = 0.0
-  val hueHistogramData = buildHistogram(0.0, 360.0, size, source.data.size, { source.data[it].hsl()[0] })
+  val hueHistogramData = buildHistogram(0.0, 360.0, size, source.data.size, { source.data[it].hsl[0] })
   (-size / 36 until size / 36).forEach { shift ->
     val shiftedHueHistogram = DoubleArray(size, {
       val i = it + shift
@@ -30,7 +30,7 @@ fun hueFilter(source: HDRRaster): HDRRaster {
   log("Shift $bestShift")
 
   return HDRRaster(source.width, source.height, {
-    val hsl = source.data[it].hsl()
+    val hsl = source.data[it].hsl
     val targetH = hsl[0] + bestShift
     val rgb = hslConvertToRGB(if (targetH < 0) targetH + 360.0 else if (targetH > 360.0) targetH - 360 else targetH, hsl[1], hsl[2])
     RGB(rgb[0].toFloat(), rgb[1].toFloat(), rgb[2].toFloat())

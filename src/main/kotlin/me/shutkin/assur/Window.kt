@@ -50,7 +50,7 @@ class OptimizedWindow(override val radius: Int, precision: Int) : Window {
     source.data.forEachIndexed { index, pixel ->
       val x = index % source.width
       val y = index / source.width
-      val luminance = pixel.luminance()
+      val luminance = pixel.luminance
       windowData.forEach {
         val w = it.weight
         val v = luminance * w

@@ -1,12 +1,10 @@
 package me.shutkin.assur.samples
 
-import me.shutkin.assur.HDRRaster
+import me.shutkin.assur.*
 import me.shutkin.assur.logger.log
-import me.shutkin.assur.readHDRRaster
-import me.shutkin.assur.saveHistogram
 import java.io.*
 
-fun collectSamples(path: String, processRaster: (HDRRaster) -> DoubleArray, differenceFactor: Double): List<DoubleArray> {
+fun collectSamples(path: String, processRaster: (HDRRaster) -> DoubleArray): List<DoubleArray> {
   val allSamples = File(path).listFiles().filter { it.isFile }.mapIndexed { index, file ->
     log("process ${file.name} #$index")
     try {
@@ -16,7 +14,7 @@ fun collectSamples(path: String, processRaster: (HDRRaster) -> DoubleArray, diff
       DoubleArray(0)
     }
   }.filter { it.isNotEmpty() }
-  return grouping(allSamples, if (allSamples.size > 500) allSamples.size / 80 else 5, differenceFactor)
+  return grouping(allSamples, 15)
 }
 
 fun saveSamples(samples: List<DoubleArray>, prefix: String) {

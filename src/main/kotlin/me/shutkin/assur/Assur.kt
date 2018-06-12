@@ -17,29 +17,138 @@ fun main(args: Array<String>) {
   }
 
   val fileToProcess = args[0]
+  val imageName = fileToProcess.substring(0, fileToProcess.lastIndexOf('.'))
   val original = readHDRRaster(FileInputStream(fileToProcess))
 
   val startTime = System.currentTimeMillis()
-  var raster = reduceSizeFilter(original, 1920, true)
-  //raster = hueFilter(raster)
-  raster = saturationFilter(raster)
-  //raster = fftFilter(raster)
-  raster = detailsFilter(raster)
-  raster = luminanceFilter(raster)
-  raster = cutoffFilter(raster)
-  val duration = System.currentTimeMillis() - startTime
-  log("duration $duration")
+  if (args.size >= 4) {
+    val diapasons = Array(3, { Diapason.valueOf(args[it + 1].toUpperCase()) })
+    log("selected diapasons ${diapasons.joinToString()}")
 
-  val outputStream = FileOutputStream(fileToProcess.substring(0, fileToProcess.lastIndexOf('.')) + "_result.png")
-  saveHDRRaster(raster, outputStream)
+    var raster = reduceSizeFilter(original, 1920, true)
+    raster = detailsFilter(raster, diapasons[0]).raster
+    raster = saturationFilter(raster, diapasons[1]).raster
+    raster = luminanceFilter(raster, diapasons[2]).raster
+    raster = cutoffFilter(raster)
+    log("duration ${System.currentTimeMillis() - startTime}")
+    saveHDRRaster(raster, FileOutputStream(imageName + "_result.png"))
+  } else {
+    val variants = generateVariants(original)
+    log("duration ${System.currentTimeMillis() - startTime}")
+    variants.forEachIndexed { index, variant -> saveHDRRaster(variant.raster, FileOutputStream("${index}_${imageName}_${variant.diapasons.joinToString("_")}.png")) }
+  }
+}
+
+private data class VariantData(val raster: HDRRaster,
+                               val detailsError: Double?, val saturationError: Double?, val lumError: Double?,
+                               val detailsMedian: Double?, val saturationMedian: Double?, val lumMedian: Double?,
+                               val diapasons: List<Diapason>) {
+  fun cutOff() = VariantData(cutoffFilter(raster), detailsError, saturationError, lumError, detailsMedian, saturationMedian, lumMedian, diapasons)
+  val error: Double get() = (detailsError ?: 0.0) + (saturationError ?: 0.0) + (lumError ?: 0.0)
+  fun isCloseTo(v1: VariantData): Boolean {
+    if (detailsMedian != null && v1.detailsMedian != null && Math.abs(detailsMedian - v1.detailsMedian) > 0.04)
+      return false
+    if (saturationMedian != null && v1.saturationMedian != null && Math.abs(saturationMedian - v1.saturationMedian) > 0.03)
+      return false
+    if (lumMedian != null && v1.lumMedian != null && Math.abs(lumMedian - v1.lumMedian) > 0.12)
+      return false
+    return true
+  }
+}
+
+private fun generateVariants(source: HDRRaster): Array<VariantData> {
+  val splines = HashMap<Diapason, CubicSpline>()
+  val errors = HashMap<Diapason, Double>()
+  val medians = HashMap<Diapason, Double>()
+  val variants = filterVariants(generateSaturationVariants(generateDetailsVariants(source)).flatMap { variant ->
+    List(3, {
+      val diapason = getDiapason(it)
+      val result = luminanceFilter(variant.raster, diapason, splines[diapason])
+      if (result.error != null)
+        errors[diapason] = result.error
+      if (result.median != null)
+        medians[diapason] = result.median
+      splines[diapason] = result.spline
+      VariantData(result.raster, variant.detailsError, variant.saturationError, errors[diapason],
+              variant.detailsMedian, variant.saturationMedian, medians[diapason], variant.diapasons + diapason)
+    })
+  }).toTypedArray()
+  variants.indices.forEach { log("errors: ${variants[it].detailsError} ${variants[it].saturationError} ${variants[it].lumError}"); variants[it] = variants[it].cutOff() }
+  variants.sortBy { it.error }
+  return variants
+}
+
+private fun generateDetailsVariants(source: HDRRaster): List<VariantData> {
+  val reduced = reduceSizeFilter(source, 800, true)
+  return filterVariants(List(3, {
+    val diapason = getDiapason(it)
+    val result = detailsFilter(reduced, diapason)
+    VariantData(result.raster, result.error, null, null, result.median, null, null, listOf(diapason))
+  }))
+}
+
+private fun generateSaturationVariants(detailed: List<VariantData>): List<VariantData> {
+  val splines = HashMap<Diapason, CubicSpline>()
+  val errors = HashMap<Diapason, Double>()
+  val medians = HashMap<Diapason, Double>()
+  return filterVariants(detailed.flatMap { variant ->
+    log("detailed index ${detailed.indexOf(variant)}")
+    List(3, {
+      val diapason = getDiapason(it)
+      val result = saturationFilter(variant.raster, diapason, splines[diapason])
+      if (result.error != null)
+        errors[diapason] = result.error
+      if (result.median != null)
+        medians[diapason] = result.median
+      splines[diapason] = result.spline
+      VariantData(result.raster, variant.detailsError, errors[diapason], null,
+              variant.detailsMedian, medians[diapason], null, variant.diapasons + diapason)
+    })
+  })
+}
+
+private fun filterVariants(variants: List<VariantData>): List<VariantData> {
+  val result = variants.map { v0 ->
+    val closeVariants = variants.filter { v1 -> v0.isCloseTo(v1) }.sortedBy { it.error }
+    val bestVariant = closeVariants[0]
+    if (closeVariants.size > 1)
+      log("filtered ${closeVariants.joinToString { it.diapasons.joinToString("_") }} -> ${bestVariant.diapasons.joinToString("_")}")
+    bestVariant
+  }.distinct()
+  log("${variants.size} -> ${result.size}")
+  return result
+}
+
+private fun getDiapason(index: Int) = when (index) { 0 -> Diapason.LOW; 1 -> Diapason.MID; else -> Diapason.HIGH }
+
+enum class Diapason {
+  ALL, LOW, MID, HIGH;
+
+  fun getStartIndex(size: Int) = when (this) { ALL, LOW -> 0; MID -> (size * 0.33).toInt(); HIGH -> (size * 0.66).toInt() }
+  fun getEndIndex(size: Int) = when (this) { LOW -> (size * 0.33).toInt(); MID -> (size * 0.66).toInt(); ALL, HIGH -> size }
 }
 
 data class RGB(val r: Float, val g: Float, val b: Float) {
-  fun min() = if (r < g && r < b) r else if (g < r && g < b) g else b
-  fun max() = if (r > g && r > b) r else if (g > r && g > b) g else b
-  fun luminance() = rgbGetLuminance(r.toDouble(), g.toDouble(), b.toDouble())
-  fun hsl() = rgbConvertToHSL(r.toDouble(), g.toDouble(), b.toDouble())
+  val min: Float get() = if (r < g && r < b) r else if (g < r && g < b) g else b
+  val max: Float get() = if (r > g && r > b) r else if (g > r && g > b) g else b
+  val luminance: Double get() = rgbGetLuminance(r.toDouble(), g.toDouble(), b.toDouble())
+  val hsl: DoubleArray get() = rgbConvertToHSL(r.toDouble(), g.toDouble(), b.toDouble())
+
   fun multiply(factor: Double) = RGB((factor * r).toFloat(), (factor * g).toFloat(), (factor * b).toFloat())
+
+  val saturation: Double
+    get() {
+      val average = (r + g + b) / 3.0
+      val s = (Math.abs(average - r) + Math.abs(average - g) + Math.abs(average - b)) / (3.0 * 128.0)
+      return if (s > 1) 1.0 else s
+    }
+
+  fun adjustSaturation(factor: Double): RGB {
+    val average = (r + g + b) / 3.0
+    return RGB((average + (r - average) * factor).toFloat(),
+            (average + (g - average) * factor).toFloat(),
+            (average + (b - average) * factor).toFloat())
+  }
 }
 
 fun rgbGetLuminance(r: Double, g: Double, b: Double) = Math.sqrt(0.299 * r * r + 0.587 * g * g + 0.114 * b * b)
@@ -118,8 +227,8 @@ fun readHDRRaster(stream: InputStream): HDRRaster {
 }
 
 fun saveHDRRaster(raster: HDRRaster, stream: OutputStream) {
-  val minValue = raster.data.map { rgb -> rgb.min().toDouble() }.min()!!
-  val maxValue = raster.data.map { rgb -> rgb.max().toDouble() }.max()!!
+  val minValue = raster.data.map { rgb -> rgb.min.toDouble() }.min()!!
+  val maxValue = raster.data.map { rgb -> rgb.max.toDouble() }.max()!!
   val factor = 255.0 / if (maxValue > minValue + 1) maxValue - minValue else 1.0
   val rgbArray = IntArray(raster.data.size, {
     val intR = rgbChannelToInt(raster.data[it].r, minValue, factor)
@@ -133,3 +242,5 @@ fun saveHDRRaster(raster: HDRRaster, stream: OutputStream) {
   stream.flush()
   stream.close()
 }
+
+data class FilterResult(val raster: HDRRaster, val spline: CubicSpline, val error: Double? = null, val median: Double? = null)

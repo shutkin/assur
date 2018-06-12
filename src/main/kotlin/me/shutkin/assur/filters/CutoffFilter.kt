@@ -14,7 +14,7 @@ fun cutoffFilter(source: HDRRaster): HDRRaster {
     }
   })
   val histogramData = buildHistogram(allChannels.min()!!, allChannels.max()!!, 256, allChannels.size, { allChannels[it] })
-  val threshold = 1.0 / 2048.0
+  val threshold = 1.0 / 4096.0
   val min = getHistogramLowValue(histogramData, threshold).toFloat()
   val max = getHistogramHighValue(histogramData, threshold).toFloat()
   log("Range: $min ... $max")
