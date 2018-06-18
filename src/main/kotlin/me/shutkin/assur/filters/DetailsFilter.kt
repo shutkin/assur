@@ -39,11 +39,11 @@ fun detailsFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefin
   } else predefinedSpline
 
   val blur = (if (source.width > 1100 || source.height > 1100) window else smallWindow).apply(source)
-  return FilterResult(HDRRaster(source.width, source.height, {
+  return FilterResult(HDRRaster(source.width, source.height) {
     val l = source.data[it].luminance
     val details = l - blur[it]
     val targetDetails = spline.interpolate(Math.abs(details))
     val targetLuminance = blur[it] + if (details > 0) targetDetails else -targetDetails
     source.data[it].multiply(targetLuminance / (l + 0.1))
-  }), spline, error, median)
+  }, spline, error, median)
 }

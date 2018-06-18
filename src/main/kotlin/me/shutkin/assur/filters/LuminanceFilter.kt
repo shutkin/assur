@@ -17,19 +17,19 @@ fun luminanceFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predef
     val reduced = reduceSizeFilter(source, 384, false)
     val adjuster = SplineAdjuster(samples, 0.0, 255.0)
     val bestSpline = adjuster.findSpline { spline ->
-      buildHistogram(0.0, 255.0, 256, reduced.data.size, {
+      buildHistogram(0.0, 255.0, 256, reduced.data.size) {
         val l = reduced.data[it].luminance
         val testRGB = reduced.data[it].multiply(spline.interpolate(l) / (l + 0.1))
         testRGB.luminance
-      }).histogram
+      }.histogram
     }
     error = adjuster.smallestError
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline
 
-  return FilterResult(HDRRaster(source.width, source.height, {
+  return FilterResult(HDRRaster(source.width, source.height) {
     val l = source.data[it].luminance
     source.data[it].multiply(spline.interpolate(l) / (l + 0.1))
-  }), spline, error, median)
+  }, spline, error, median)
 }

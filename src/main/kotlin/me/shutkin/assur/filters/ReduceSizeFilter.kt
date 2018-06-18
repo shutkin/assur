@@ -19,9 +19,7 @@ fun reduceSizeFilter(source: HDRRaster, maxSize: Int, verbose: Boolean): HDRRast
   val height = (scale * source.height).toInt()
   if (verbose)
     log("Reduce to $width x $height")
-  return HDRRaster(width, height, {
-    getSourceAverage(source, pixelSize, (it % width).toDouble() / scale, (it / width).toDouble() / scale)
-  })
+  return HDRRaster(width, height) { getSourceAverage(source, pixelSize, (it % width).toDouble() / scale, (it / width).toDouble() / scale) }
 }
 
 private fun getSourceAverage(source: HDRRaster, pixelSize: Double, x: Double, y: Double): RGB {

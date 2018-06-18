@@ -1,6 +1,15 @@
 package me.shutkin.assur
 
 import java.util.HashMap
+import kotlin.collections.ArrayList
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.forEach
+import kotlin.collections.forEachIndexed
+import kotlin.collections.set
+import kotlin.collections.sum
+import kotlin.collections.toList
 
 interface Window {
   val radius: Int
@@ -83,7 +92,7 @@ class StraightWindow(override val radius: Int) : Window {
   }
 
   override fun apply(source: HDRRaster): DoubleArray {
-    return DoubleArray(source.data.size, {
+    return DoubleArray(source.data.size) {
       val centerX = it % source.width
       val centerY = it / source.width
       var (sumR, sumG, sumB) = doubleArrayOf(0.0, 0.0, 0.0)
@@ -105,6 +114,6 @@ class StraightWindow(override val radius: Int) : Window {
         }
       }
       rgbGetLuminance(sumR / weightsSum, sumG / weightsSum, sumB / weightsSum)
-    })
+    }
   }
 }

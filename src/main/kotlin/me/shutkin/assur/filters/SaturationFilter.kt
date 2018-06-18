@@ -29,9 +29,9 @@ fun saturationFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, prede
     bestSpline
   } else predefinedSpline
 
-  return FilterResult(HDRRaster(source.width, source.height, {
+  return FilterResult(HDRRaster(source.width, source.height) {
     val s = source.data[it].saturation
     val factor = spline.interpolate(s) / (s + 0.001)
     source.data[it].adjustSaturation(factor)
-  }), spline, error, median)
+  }, spline, error, median)
 }
