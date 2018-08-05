@@ -35,10 +35,10 @@ private fun convertIndexToValue(data: HistogramData, index: Int) =
         if (index < 0) 0.0 else data.minValue + (data.maxValue - data.minValue) * index / (data.histogram.size - 1.0)
 
 fun saveHistogram(histogram: DoubleArray, filename: String) =
-        saveHDRRaster(HDRRaster(histogram.size, 1024, {
+        saveHDRRaster(HDRRaster(histogram.size, 1024) {
           val x = it % histogram.size
           val y = it / histogram.size
           val v = histogram[x] * 1024.0 * 16.0
           if (1024 - y < v) RGB(255f, 255f, 255f) else RGB(0f, 0f, 0f)
-        }), FileOutputStream(filename))
+        }, FileOutputStream(filename))
 

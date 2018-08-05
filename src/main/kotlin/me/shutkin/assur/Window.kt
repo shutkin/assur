@@ -5,19 +5,15 @@ import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.component3
-import kotlin.collections.forEach
-import kotlin.collections.forEachIndexed
 import kotlin.collections.set
-import kotlin.collections.sum
-import kotlin.collections.toList
 
 interface Window {
   val radius: Int
   fun apply(source: HDRRaster): DoubleArray
 }
 
-data class Offset(val x: Int, val y: Int)
-data class WeightData(val weight: Double, val offsets: IntArray) {
+private data class Offset(val x: Int, val y: Int)
+private data class WeightData(val weight: Double, val offsets: IntArray) {
   override fun equals(other: Any?) = false
   override fun hashCode() = 0
 }
@@ -27,11 +23,11 @@ class OptimizedWindow(override val radius: Int, precision: Int) : Window {
   private val windowData: Array<WeightData>
 
   init {
-    val notNormalizedWindow = DoubleArray(windowWidth * windowWidth, {
+    val notNormalizedWindow = DoubleArray(windowWidth * windowWidth) {
       val y: Int = it / windowWidth - radius
       val x: Int = it % windowWidth - radius
       if (x == 0 && y == 0) 0.0 else 1.0 / (x.toDouble() * x + y.toDouble() * y)
-    })
+    }
     val sum: Double = notNormalizedWindow.sum()
 
     val weightsMap = HashMap<Long, ArrayList<Offset>>()
@@ -45,12 +41,12 @@ class OptimizedWindow(override val radius: Int, precision: Int) : Window {
     }
 
     val fixedValuesArray = weightsMap.keys.toList()
-    windowData = Array(weightsMap.size, {
+    windowData = Array(weightsMap.size) {
       val fixedValue = fixedValuesArray[it]
       val offsetsList = weightsMap[fixedValue]!!
-      WeightData(fixedValue.toDouble() / precision, IntArray(offsetsList.size * 2,
-              { if (it % 2 == 0) offsetsList[it / 2].x else offsetsList[it / 2].y }))
-    })
+      WeightData(fixedValue.toDouble() / precision, IntArray(offsetsList.size * 2) {
+        if (it % 2 == 0) offsetsList[it / 2].x else offsetsList[it / 2].y })
+    }
   }
 
   override fun apply(source: HDRRaster): DoubleArray {
@@ -73,7 +69,7 @@ class OptimizedWindow(override val radius: Int, precision: Int) : Window {
         }
       }
     }
-    return DoubleArray(sums.size, { sums[it] / weights[it] })
+    return DoubleArray(sums.size) { sums[it] / weights[it] }
   }
 }
 
@@ -82,13 +78,13 @@ class StraightWindow(override val radius: Int) : Window {
   private val windowWidth = 2 * radius + 1
 
   init {
-    val notNormalizedWindow = DoubleArray(windowWidth * windowWidth, {
+    val notNormalizedWindow = DoubleArray(windowWidth * windowWidth) {
       val y: Int = it / windowWidth - radius
       val x: Int = it % windowWidth - radius
       if (x == 0 && y == 0) 0.0 else 1.0 / (x.toDouble() * x + y.toDouble() * y)
-    })
+    }
     val sum: Double = notNormalizedWindow.sum()
-    window = DoubleArray(windowWidth * windowWidth, { i -> notNormalizedWindow[i] / sum })
+    window = DoubleArray(windowWidth * windowWidth) { i -> notNormalizedWindow[i] / sum }
   }
 
   override fun apply(source: HDRRaster): DoubleArray {

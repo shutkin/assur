@@ -2,7 +2,7 @@ package me.shutkin.assur
 
 import java.util.*
 
-private class SplineTuple (var x: Double, y: Double) {
+private class SplineTuple(var x: Double, y: Double) {
   var a = y
   var b = 0.0
   var c = 0.0
@@ -10,7 +10,7 @@ private class SplineTuple (var x: Double, y: Double) {
 }
 
 class CubicSpline(private val x: DoubleArray, private val y: DoubleArray) {
-  private val splines: Array<SplineTuple> = Array(x.size, {i -> SplineTuple(x[i], y[i])})
+  private val splines: Array<SplineTuple> = Array(x.size, { i -> SplineTuple(x[i], y[i]) })
 
   init {
     splines[splines.size - 1].c = 0.0
@@ -41,25 +41,19 @@ class CubicSpline(private val x: DoubleArray, private val y: DoubleArray) {
   }
 
   fun interpolate(x: Double): Double {
-    val s: SplineTuple
+    if (x < splines.first().x || x > splines.last().x)
+      return x
 
-    if (x <= splines[0].x)
-      s = splines[0]
-    else if (x >= splines[splines.size - 1].x)
-      s = splines[splines.size - 1]
-    else {
-      var i = 0
-      var j = splines.size - 1
-      while (i + 1 < j) {
-        val k = i + (j - i) / 2
-        if (x <= splines[k].x)
-          j = k
-        else
-          i = k
-      }
-      s = splines[j]
+    var i = 0
+    var j = splines.size - 1
+    while (i + 1 < j) {
+      val k = i + (j - i) / 2
+      if (x <= splines[k].x)
+        j = k
+      else
+        i = k
     }
-
+    val s = splines[j]
     val dx = x - s.x
     return s.a + (s.b + (s.c / 2.0 + s.d * dx / 6.0) * dx) * dx
   }

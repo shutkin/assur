@@ -17,11 +17,12 @@ fun main(args: Array<String>) {
 
   val startTime = System.currentTimeMillis()
   if (args.size >= 4) {
-    val diapasons = Array(3, { Diapason.valueOf(args[it + 1].toUpperCase()) })
+    val diapasons = Array(3) { Diapason.valueOf(args[it + 1].toUpperCase()) }
     log("selected diapasons ${diapasons.joinToString()}")
 
     var raster = reduceSizeFilter(original, 1920, true)
     raster = detailsFilter(raster, diapasons[0]).raster
+    raster = zonalFilter(raster, Diapason.LOW).raster
     raster = saturationFilter(raster, diapasons[1]).raster
     raster = luminanceFilter(raster, diapasons[2]).raster
     raster = cutoffFilter(raster)
@@ -41,7 +42,7 @@ private data class VariantData(val raster: HDRRaster,
   fun cutOff() = VariantData(cutoffFilter(raster), detailsError, saturationError, lumError, detailsMedian, saturationMedian, lumMedian, diapasons)
   val error: Double get() = (detailsError ?: 0.0) + (saturationError ?: 0.0) + (lumError ?: 0.0)
   fun isCloseTo(v1: VariantData): Boolean {
-    if (detailsMedian != null && v1.detailsMedian != null && Math.abs(detailsMedian - v1.detailsMedian) > 0.04)
+    if (detailsMedian != null && v1.detailsMedian != null && Math.abs(detailsMedian - v1.detailsMedian) > 0.014)
       return false
     if (saturationMedian != null && v1.saturationMedian != null && Math.abs(saturationMedian - v1.saturationMedian) > 0.03)
       return false
@@ -56,7 +57,7 @@ private fun generateVariants(source: HDRRaster): Array<VariantData> {
   val errors = HashMap<Diapason, Double>()
   val medians = HashMap<Diapason, Double>()
   val variants = filterVariants(generateSaturationVariants(generateDetailsVariants(source)).flatMap { variant ->
-    List(3, {
+    List(3) {
       val diapason = getDiapason(it)
       val result = luminanceFilter(variant.raster, diapason, splines[diapason])
       if (result.error != null)
@@ -66,7 +67,7 @@ private fun generateVariants(source: HDRRaster): Array<VariantData> {
       splines[diapason] = result.spline
       VariantData(result.raster, variant.detailsError, variant.saturationError, errors[diapason],
               variant.detailsMedian, variant.saturationMedian, medians[diapason], variant.diapasons + diapason)
-    })
+    }
   }).toTypedArray()
   variants.indices.forEach { log("errors: ${variants[it].detailsError} ${variants[it].saturationError} ${variants[it].lumError}"); variants[it] = variants[it].cutOff() }
   variants.sortBy { it.error }
@@ -75,11 +76,11 @@ private fun generateVariants(source: HDRRaster): Array<VariantData> {
 
 private fun generateDetailsVariants(source: HDRRaster): List<VariantData> {
   val reduced = reduceSizeFilter(source, 800, true)
-  return filterVariants(List(3, {
+  return filterVariants(List(3) {
     val diapason = getDiapason(it)
     val result = detailsFilter(reduced, diapason)
     VariantData(result.raster, result.error, null, null, result.median, null, null, listOf(diapason))
-  }))
+  })
 }
 
 private fun generateSaturationVariants(detailed: List<VariantData>): List<VariantData> {
@@ -88,7 +89,7 @@ private fun generateSaturationVariants(detailed: List<VariantData>): List<Varian
   val medians = HashMap<Diapason, Double>()
   return filterVariants(detailed.flatMap { variant ->
     log("detailed index ${detailed.indexOf(variant)}")
-    List(3, {
+    List(3) {
       val diapason = getDiapason(it)
       val result = saturationFilter(variant.raster, diapason, splines[diapason])
       if (result.error != null)
@@ -98,7 +99,7 @@ private fun generateSaturationVariants(detailed: List<VariantData>): List<Varian
       splines[diapason] = result.spline
       VariantData(result.raster, variant.detailsError, errors[diapason], null,
               variant.detailsMedian, medians[diapason], null, variant.diapasons + diapason)
-    })
+    }
   })
 }
 

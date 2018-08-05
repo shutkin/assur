@@ -6,36 +6,29 @@ import java.io.OutputStream
 import javax.imageio.ImageIO
 
 class HDRRaster(val width: Int, val height: Int, func: (Int) -> RGB) {
-  val data = Array(width * height, {
-    val rgb = func(it)
-    RGB(
-            if (rgb.r < 0) 0f else if (rgb.r > 255) 255f else rgb.r,
-            if (rgb.g < 0) 0f else if (rgb.g > 255) 255f else rgb.g,
-            if (rgb.b < 0) 0f else if (rgb.b > 255) 255f else rgb.b
-    )
-  })
+  val data = Array(width * height, func)
 }
 
 fun readHDRRaster(stream: InputStream): HDRRaster {
   val image = ImageIO.read(stream)
   stream.close()
   val rgbArray = image.getRGB(0, 0, image.width, image.height, null, 0, image.width)
-  return HDRRaster(image.width, image.height, { i ->
+  return HDRRaster(image.width, image.height) { i ->
     val c = rgbArray[i]
     RGB((c and 0xff0000 shr 16).toFloat(), (c and 0xff00 shr 8).toFloat(), (c and 0xff).toFloat())
-  })
+  }
 }
 
 fun saveHDRRaster(raster: HDRRaster, stream: OutputStream) {
   val minValue = raster.data.map { rgb -> rgb.min.toDouble() }.min()!!
   val maxValue = raster.data.map { rgb -> rgb.max.toDouble() }.max()!!
   val factor = 255.0 / if (maxValue > minValue + 1) maxValue - minValue else 1.0
-  val rgbArray = IntArray(raster.data.size, {
+  val rgbArray = IntArray(raster.data.size) {
     val intR = rgbChannelToInt(raster.data[it].r, minValue, factor)
     val intG = rgbChannelToInt(raster.data[it].g, minValue, factor)
     val intB = rgbChannelToInt(raster.data[it].b, minValue, factor)
     intB or (intG shl 8) or (intR shl 16) or (255 shl 24)
-  })
+  }
   val image = BufferedImage(raster.width, raster.height, BufferedImage.TYPE_INT_RGB)
   image.setRGB(0, 0, raster.width, raster.height, rgbArray, 0, raster.width)
   ImageIO.write(image, "png", stream)
@@ -69,9 +62,62 @@ fun rgbGetLuminance(r: Double, g: Double, b: Double) = Math.sqrt(0.299 * r * r +
 
 fun rgbChannelToInt(c: Float, min: Double, factor: Double): Int {
   val result = Math.round(factor * (c - min)).toInt()
-  return when {
+  return result
+  /*return when {
     result < 0 -> 0
     result > 255 -> 255
     else -> result
+  }*/
+}
+
+fun rgbToHsl(rNotNormalized: Double, gNotNormalized: Double, bNotNormalized: Double): DoubleArray {
+  val r = /*if (rNotNormalized < 0) 0.0 else if (rNotNormalized > 255) 1.0 else*/ rNotNormalized / 255.0
+  val g = /*if (gNotNormalized < 0) 0.0 else if (gNotNormalized > 255) 1.0 else*/ gNotNormalized / 255.0
+  val b = /*if (bNotNormalized < 0) 0.0 else if (bNotNormalized > 255) 1.0 else*/ bNotNormalized / 255.0
+
+  val min = Math.min(r, Math.min(g, b))
+  val max = Math.max(r, Math.max(g, b))
+
+  val h = when {
+    max - min < 0.5 / 255.0 -> 0.0
+    r > g && r > b -> (60.0 * (g - b) / (max - min) + 360.0) % 360
+    g > r && g > b -> 60.0 * (b - r) / (max - min) + 120.0
+    else -> 60.0 * (r - g) / (max - min) + 240.0
   }
+
+  val l = (max + min) / 2.0
+
+  val s = when {
+    max - min < 0.5 / 255.0 -> 0.0
+    l <= 0.5 -> (max - min) / (max + min)
+    else -> (max - min) / (2.0 - max - min)
+  }
+
+  return doubleArrayOf(h, s * 100.0, l * 100.0)
+}
+
+fun hslToRgb(hNotNormalized: Double, sNotNormalized: Double, lNotNormalized: Double): RGB {
+  val h = (if (hNotNormalized > 360) hNotNormalized - 360.0 else if (hNotNormalized < 0) hNotNormalized + 360.0 else hNotNormalized) / 360.0
+  val s = if (sNotNormalized < 0) 0.0 else if (sNotNormalized > 100) 1.0 else sNotNormalized / 100.0
+  val l = if (lNotNormalized < 0) 0.0 else if (lNotNormalized > 100) 1.0 else lNotNormalized / 100.0
+
+  val q = if (l < 0.5) l * (1 + s) else l + s - s * l
+  val p = 2 * l - q
+  return RGB(hueToRgb(p, q, h + 1.0 / 3.0).toFloat(), hueToRgb(p, q, h).toFloat(), hueToRgb(p, q, h - 1.0 / 3.0).toFloat())
+}
+
+private fun hueToRgb(p: Double, q: Double, hNotNormalized: Double): Double {
+  val h = if (hNotNormalized < 0) hNotNormalized + 1.0 else if (hNotNormalized > 1.0) hNotNormalized - 1.0 else hNotNormalized
+
+  if (6 * h < 1) {
+    return p + (q - p) * 6f * h
+  }
+
+  if (2 * h < 1) {
+    return q
+  }
+
+  return if (3 * h < 2) {
+    p + (q - p) * 6f * (2.0f / 3.0f - h)
+  } else p
 }
