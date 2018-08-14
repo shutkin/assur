@@ -1,15 +1,14 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
 import me.shutkin.assur.samples.evalArraysDiffM
-import java.io.FileInputStream
 
-private val zonesSamples = deserializeSamples(FileInputStream("zones.samples"), 128)
+private val zonesSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/zones.samples"), 128)
 
 fun zonalFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
-  log("ZonalFilter start")
+  assurLog("ZonalFilter start, diapason $diapason")
 
   var error: Double? = null
   var median: Double? = null
@@ -19,7 +18,7 @@ fun zonalFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefined
     val adjuster = SplineAdjuster(samples, 0.0, 128.0)
     adjuster.adjustPoints = 3
     adjuster.steps = 3
-    val reduced = reduceSizeFilter(source, 384, false)
+    val reduced = reduceSizeFilter(source, 256, false)
     val reducedZones = buildZones(reduced)
     val averageReducedLum = reducedZones.zonesLums.average()
     val bestSpline = adjuster.findSpline({ spline ->
@@ -43,10 +42,9 @@ fun zonalFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefined
   } else predefinedSpline
 
   val zones = buildZones(source)
-  log("zone size: ${zones.zoneSize}, horizontal: ${zones.horizZones}, vertical: ${zones.vertZones}")
-  log("zones: ${zones.zonesLums.joinToString()}")
+  assurLog("zone size: ${zones.zoneSize}, horizontal: ${zones.horizZones}, vertical: ${zones.vertZones}")
   val averageLum = zones.zonesLums.average()
-  log("Average lum $averageLum")
+  assurLog("Average lum $averageLum")
   return FilterResult(HDRRaster(source.width, source.height) {
     val x = it % source.width
     val y = it / source.width

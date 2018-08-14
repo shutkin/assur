@@ -1,6 +1,6 @@
 package me.shutkin.assur
 
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.evalArraysDiff
 
 class SplineAdjuster (private val samples: Array<DoubleArray>, private val minValue: Double, private val maxValue: Double) {
@@ -19,7 +19,7 @@ class SplineAdjuster (private val samples: Array<DoubleArray>, private val minVa
     val bestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
     val nextBestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
     (1 .. 3).forEach { level ->
-      log("level $level")
+      assurLog("Spline points adjustment level $level")
       for (variant in 0 until Math.pow(steps.toDouble(), bestPoints.size.toDouble()).toInt()) {
         val points = getVariant(bestPoints, 0.45 * range / level, steps, variant)
         val splinePoints = keyPoints.sliceArray(0 until 1) + points + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size)
@@ -34,16 +34,17 @@ class SplineAdjuster (private val samples: Array<DoubleArray>, private val minVa
           bestHistogram = testHistogram
         }
       }
+      assurLog("smallest error $smallestError")
       bestPoints.indices.forEach { bestPoints[it] = nextBestPoints[it] }
     }
     bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestHistogram!!), 0.5)
-    log("best sample $selectedSampleIndex, error $smallestError, median $bestMedian")
+    assurLog("best sample $selectedSampleIndex, error $smallestError, median $bestMedian")
     if (bestHistogram != null && filenamePrefix != null) {
       saveHistogram(bestHistogram!!, filenamePrefix + "_histogram.png")
       saveHistogram(samples[selectedSampleIndex], filenamePrefix + "_histogram_sample.png")
     }
     val spline = CubicSpline(keyPoints, keyPoints.sliceArray(0 until 1) + bestPoints + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size))
-    log(spline.toString())
+    assurLog(spline.toString())
     return spline
   }
 }

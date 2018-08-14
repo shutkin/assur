@@ -1,16 +1,16 @@
 package me.shutkin.assur.samples
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import java.io.*
 
 fun collectSamples(path: String, processRaster: (HDRRaster) -> DoubleArray): List<DoubleArray> {
   val allSamples = File(path).listFiles().filter { it.isFile }.mapIndexed { index, file ->
-    log("process ${file.name} #$index")
+    assurLog("process ${file.name} #$index")
     try {
       processRaster(readHDRRaster(FileInputStream(file)))
     } catch (e: Exception) {
-      log(e.message ?: "some exception occurs")
+      assurLog(e.message ?: "some exception occurs")
       DoubleArray(0)
     }
   }.filter { it.isNotEmpty() }
@@ -20,7 +20,7 @@ fun collectSamples(path: String, processRaster: (HDRRaster) -> DoubleArray): Lis
 fun saveSamples(samples: List<DoubleArray>, prefix: String) {
   samples.forEachIndexed { index, sample ->
     saveHistogram(sample, "${prefix}_sample_$index.png")
-    log(sample.joinToString { it.toString() })
+    assurLog(sample.joinToString { it.toString() })
   }
   serializeSamples(FileOutputStream("$prefix.samples"), samples)
 }
@@ -42,7 +42,7 @@ fun deserializeSamples(stream: InputStream, sampleSize: Int): Array<DoubleArray>
       try {
         result[sampleIndex][index] = objectStream.readDouble()
       } catch (e: Exception) {
-        log("Exception at sample $sampleIndex index $index")
+        assurLog("Exception at sample $sampleIndex index $index")
         stream.close()
         return result
       }

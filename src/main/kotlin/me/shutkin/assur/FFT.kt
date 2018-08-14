@@ -77,7 +77,7 @@ fun getFreq(windowIndex: Int): Double {
  *  Compute the FFT and inverse FFT of a length n complex sequence
  *  using the radix 2 Cooley-Tukey algorithm.
 
- *  Bare bones implementation that runs in O(n log n) time. Our goal
+ *  Bare bones implementation that runs in O(n assurLog n) time. Our goal
  *  is to optimize the clarity of the code, rather than performance.
  *
  *  Limitations

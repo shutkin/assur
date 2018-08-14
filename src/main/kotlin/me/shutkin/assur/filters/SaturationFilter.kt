@@ -1,14 +1,13 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
-import java.io.FileInputStream
 
-private val saturationSamples = deserializeSamples(FileInputStream("saturation.samples"), 128)
+private val saturationSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/saturation.samples"), 128)
 
 fun saturationFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
-  log("SaturationFilter start, diapason $diapason")
+  assurLog("SaturationFilter start, diapason $diapason")
   var error: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {

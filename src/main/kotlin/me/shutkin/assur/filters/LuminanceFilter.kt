@@ -1,14 +1,14 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
-import java.io.FileInputStream
+import me.shutkin.assur.samples.evalArraysDiff
 
-private val luminanceSamples = deserializeSamples(FileInputStream("luminance.samples"), 256)
+private val luminanceSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/luminance.samples"), 256)
 
 fun luminanceFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
-  log("LuminanceFilter start, diapason $diapason")
+  assurLog("LuminanceFilter start, diapason $diapason")
   var error: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
@@ -22,7 +22,7 @@ fun luminanceFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predef
         val testRGB = reduced.data[it].multiply(spline.interpolate(l) / (l + 1.0))
         testRGB.luminance
       }.histogram
-    })
+    }, ::evalArraysDiff)
     error = adjuster.smallestError
     median = adjuster.bestMedian
     bestSpline

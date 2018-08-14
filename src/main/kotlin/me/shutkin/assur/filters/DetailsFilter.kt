@@ -1,18 +1,17 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.log
+import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
 import me.shutkin.assur.samples.evalArraysDiffM
-import java.io.FileInputStream
 
-private val window: Window = StraightWindow(32)
-private val smallWindow: Window = StraightWindow(16)
+private val window: Window = OptimizedWindow(54, (1.0 / 3.0E-5).toInt())
+private val smallWindow: Window = StraightWindow(24)
 
-private val detailsSamples = deserializeSamples(FileInputStream("details.samples"), 1024)
+private val detailsSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/details.samples"), 1024)
 
 fun detailsFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
-  log("DetailsFilter start, diapason $diapason")
+  assurLog("DetailsFilter start, diapason $diapason")
   var error: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
