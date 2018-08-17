@@ -19,7 +19,7 @@ fun readHDRRaster(stream: InputStream): HDRRaster {
   }
 }
 
-fun saveHDRRaster(raster: HDRRaster, stream: OutputStream) {
+fun saveHDRRaster(raster: HDRRaster, stream: OutputStream, imageFormat: String = "png") {
   val minValue = raster.data.map { rgb -> rgb.min.toDouble() }.min()!!
   val maxValue = raster.data.map { rgb -> rgb.max.toDouble() }.max()!!
   val factor = 255.0 / if (maxValue > minValue + 1) maxValue - minValue else 1.0
@@ -31,7 +31,7 @@ fun saveHDRRaster(raster: HDRRaster, stream: OutputStream) {
   }
   val image = BufferedImage(raster.width, raster.height, BufferedImage.TYPE_INT_RGB)
   image.setRGB(0, 0, raster.width, raster.height, rgbArray, 0, raster.width)
-  ImageIO.write(image, "png", stream)
+  ImageIO.write(image, imageFormat, stream)
   stream.flush()
   stream.close()
 }

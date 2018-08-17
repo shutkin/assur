@@ -1,21 +1,20 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
 import me.shutkin.assur.samples.evalArraysDiff
 import java.io.FileInputStream
 
 val fftSamples = deserializeSamples(FileInputStream("spectrum.samples"), 256)
 
-fun fftFilter(source: HDRRaster): HDRRaster {
-  assurLog("FFTFilter start")
+fun fftFilter(context: AssurContext, source: HDRRaster): HDRRaster {
+  context.log("FFTFilter start")
   val samples = fftSamples
 
   val spectrum = buildSpectrum(source, true)
   val diffs = samples.map { evalArraysDiff(spectrum, it) }
   val sampleIndex = diffs.indexOf(diffs.min())
-  assurLog("selected sample $sampleIndex")
+  context.log("selected sample $sampleIndex")
   val sampleSpectrum = samples[sampleIndex]
   val harmonicFactors = DoubleArray(spectrum.size, { sampleSpectrum[it] / (spectrum[it] + 0.01) })
 

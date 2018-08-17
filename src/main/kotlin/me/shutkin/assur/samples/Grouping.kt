@@ -7,7 +7,7 @@ fun grouping(samples: List<DoubleArray>, groupsNumber: Int): List<DoubleArray> {
   val averageDiff = findAverageDiff(samples)
   var diffFactor = 5.0
   while (diffFactor > 0) {
-    val groups = MutableList<MutableSet<Int>>(1, { HashSet() })
+    val groups = MutableList<MutableSet<Int>>(1) { HashSet() }
     samples.forEachIndexed { index, sample ->
       val maxDiffsByGroup = groups.map { group -> group.map { evalArraysDiff(sample, samples[it]) }.max() ?: 0.0 }
       val minGroupDiff = maxDiffsByGroup.min() ?: 0.0
@@ -23,7 +23,7 @@ fun grouping(samples: List<DoubleArray>, groupsNumber: Int): List<DoubleArray> {
     val filtered = groups.filter { it.size >= minSamplesInGroup }
     if (filtered.size >= groupsNumber)
       return filtered.map { group ->
-        DoubleArray(samples[0].size, { group.map { sampleIndex -> samples[sampleIndex][it] }.sum() / group.size })
+        DoubleArray(samples[0].size) { group.map { sampleIndex -> samples[sampleIndex][it] }.sum() / group.size }
       }.sortedBy { getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) }
     diffFactor -= 0.2
   }

@@ -1,10 +1,9 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.assurLog
 
-fun cutoffFilter(source: HDRRaster): HDRRaster {
-  assurLog("CutoffFilter start")
+fun cutoffFilter(context: AssurContext, source: HDRRaster): HDRRaster {
+  context.log("CutoffFilter start")
   val allChannels = DoubleArray(source.data.size * 3) { i ->
     val sourcePixel = source.data[i / 3]
     when (i % 3) {
@@ -14,10 +13,10 @@ fun cutoffFilter(source: HDRRaster): HDRRaster {
     }
   }
   val histogramData = buildHistogram(allChannels.min()!!, allChannels.max()!!, 256, allChannels.size, { allChannels[it] })
-  val threshold = 1.0 / 4096.0
+  val threshold = 1.0 / 8192.0
   val min = getHistogramLowValue(histogramData, threshold).toFloat()
   val max = getHistogramHighValue(histogramData, threshold).toFloat()
-  assurLog("Range: $min ... $max")
+  context.log("Range: $min ... $max")
   return HDRRaster(source.width, source.height) { i ->
     val sourcePixel = source.data[i]
     RGB(

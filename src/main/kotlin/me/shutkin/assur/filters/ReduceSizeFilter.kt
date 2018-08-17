@@ -1,10 +1,10 @@
 package me.shutkin.assur.filters
 
+import me.shutkin.assur.AssurContext
 import me.shutkin.assur.HDRRaster
 import me.shutkin.assur.RGB
-import me.shutkin.assur.logger.assurLog
 
-fun reduceSizeFilter(source: HDRRaster, maxSize: Int, verbose: Boolean): HDRRaster {
+fun reduceSizeFilter(context: AssurContext, source: HDRRaster, maxSize: Int, verbose: Boolean): HDRRaster {
   if (source.width <= maxSize && source.height <= maxSize)
     return source
 
@@ -12,13 +12,13 @@ fun reduceSizeFilter(source: HDRRaster, maxSize: Int, verbose: Boolean): HDRRast
   val pixelSize = 1.0 / scale
 
   if (verbose) {
-    assurLog("ReduceSizeFilter start")
-    assurLog("Scale $scale")
+    context.log("ReduceSizeFilter start")
+    context.log("Scale $scale")
   }
   val width = (scale * source.width).toInt()
   val height = (scale * source.height).toInt()
   if (verbose)
-    assurLog("Reduce to $width x $height")
+    context.log("Reduce to $width x $height")
   return HDRRaster(width, height) { getSourceAverage(source, pixelSize, (it % width).toDouble() / scale, (it / width).toDouble() / scale) }
 }
 

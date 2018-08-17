@@ -41,8 +41,8 @@ class OptimizedWindow(override val radius: Int, precision: Int) : Window {
     }
 
     val fixedValuesArray = weightsMap.keys.toList()
-    windowData = Array(weightsMap.size) {
-      val fixedValue = fixedValuesArray[it]
+    windowData = Array(weightsMap.size) { index ->
+      val fixedValue = fixedValuesArray[index]
       val offsetsList = weightsMap[fixedValue]!!
       WeightData(fixedValue.toDouble() / precision, IntArray(offsetsList.size * 2) {
         if (it % 2 == 0) offsetsList[it / 2].x else offsetsList[it / 2].y })

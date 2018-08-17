@@ -1,7 +1,6 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.logger.assurLog
 import me.shutkin.assur.samples.deserializeSamples
 import me.shutkin.assur.samples.evalArraysDiffM
 
@@ -10,20 +9,21 @@ private val smallWindow: Window = StraightWindow(24)
 
 private val detailsSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/details.samples"), 1024)
 
-fun detailsFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
-  assurLog("DetailsFilter start, diapason $diapason")
+fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+  context.log("DetailsFilter start, diapason $diapason")
   var error: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
     val samples = detailsSamples.filterIndexed { index, _ ->
       index in diapason.getStartIndex(detailsSamples.size)..(diapason.getEndIndex(detailsSamples.size) - 1)
     }.toTypedArray()
-    val reduced = reduceSizeFilter(source, 256, false)
+    val reduced = reduceSizeFilter(context, source, 256, false)
     val reducedWindow = StraightWindow(6)
     val reducedBlur = reducedWindow.apply(reduced)
     val adjuster = SplineAdjuster(samples, 0.0, 64.0)
     adjuster.adjustPoints = 3
-    val bestSpline = adjuster.findSpline({ testSpline ->
+    adjuster.levels = 4
+    val bestSpline = adjuster.findSpline(context, { testSpline ->
       val testRaster = HDRRaster(reduced.width, reduced.height) {
         val originalLum = reduced.data[it].luminance
         val diff = originalLum - reducedBlur[it]
@@ -44,7 +44,7 @@ fun detailsFilter(source: HDRRaster, diapason: Diapason = Diapason.ALL, predefin
     val originalLum = source.data[it].luminance
     val diff = originalLum - blur[it]
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
-    val factor = (blur[it] + correctedDiff + 1.0) / (originalLum + 1)
+    val factor = 1.0 * (blur[it] + correctedDiff + 1.0) / (originalLum + 1)
     source.data[it].multiply(factor)
   }, spline, error, median)
 }
