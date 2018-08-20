@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="246e68e3-9d95-42d9-ac4d-ae55043753d9" name="Default" comment="Prepare logger for integration, samples in the resources, some improvements">
+    <list default="true" id="246e68e3-9d95-42d9-ac4d-ae55043753d9" name="Default" comment="Integration with the server. Jpeg format. Filtered samples.">
+      <change afterPath="$PROJECT_DIR$/details_sample_0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/details_sample_12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/details_sample_13.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/details_sample_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details.samples" beforeDir="false" afterPath="$PROJECT_DIR$/details.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_0.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_1.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_10.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_13.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_15.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_16.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/details_sample_17.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_2.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_3.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_4.png" afterDir="false" />
@@ -22,82 +21,10 @@
       <change beforePath="$PROJECT_DIR$/details_sample_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_7.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_8.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/details_sample_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/details_sample_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance.samples" beforeDir="false" afterPath="$PROJECT_DIR$/luminance.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_15.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_16.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/luminance_sample_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/luminance_sample_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation.samples" beforeDir="false" afterPath="$PROJECT_DIR$/saturation.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_0.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saturation_sample_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/saturation_sample_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum.samples" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_10.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_11.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_12.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_13.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_14.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spectrum_sample_9.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Assur.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Assur.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/CubicSpline.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/CubicSpline.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/FFT.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/FFT.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/HDRRaster.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/HDRRaster.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Histogram.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Histogram.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/SplineAdjuster.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/SplineAdjuster.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Window.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Window.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/CutoffFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/CutoffFilter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/FFTFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/FFTFilter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/LuminanceFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/LuminanceFilter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ReduceSizeFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ReduceSizeFilter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/SaturationFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/SaturationFilter.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/logger/AssurLogger.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/logger/AssurLogger.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/FFTSamples.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Grouping.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Grouping.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/HistogramSamples.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/HistogramSamples.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Samples.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Samples.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/SaturationSamples.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/SaturationSamples.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/ZonesSamples.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/ZonesSamples.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/details.samples" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/details.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/luminance.samples" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/luminance.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/saturation.samples" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/saturation.samples" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/me/shutkin/assur/HelloTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/me/shutkin/assur/HelloTest.kt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -112,70 +39,49 @@
     <session id="2139723156">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="11" />
-          <entry key="project.open.time.1" value="1" />
-          <entry key="project.open.time.2" value="4" />
+          <entry key="project.closed" value="16" />
+          <entry key="project.open.time.1" value="2" />
+          <entry key="project.open.time.10" value="1" />
+          <entry key="project.open.time.2" value="5" />
           <entry key="project.open.time.8" value="6" />
-          <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="12" />
+          <entry key="project.open.time.9" value="3" />
+          <entry key="project.opened" value="17" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="kt" value="2871" />
-          <entry key="txt" value="179" />
+          <entry key="kt" value="2884" />
+          <entry key="txt" value="258" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Kotlin" value="2871" />
-          <entry key="PLAIN_TEXT" value="179" />
+          <entry key="Kotlin" value="2884" />
+          <entry key="PLAIN_TEXT" value="258" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="kt" value="41" />
+          <entry key="kt" value="42" />
           <entry key="png" value="1" />
+          <entry key="xml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Image" value="1" />
-          <entry key="Kotlin" value="41" />
+          <entry key="Kotlin" value="42" />
+          <entry key="XML" value="1" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="35" lean-forward="true" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
-              <folding>
-                <element signature="e#34#268#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/LuminanceFilter.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="18" selection-start-line="18" selection-end-line="18" />
-              <folding>
-                <element signature="e#34#157#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
+            <state relative-caret-position="323">
               <caret line="21" column="50" selection-start-line="21" selection-start-column="50" selection-end-line="21" selection-end-column="50" />
             </state>
           </provider>
@@ -193,11 +99,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Assur.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
-              <caret line="37" column="113" selection-start-line="37" selection-start-column="113" selection-end-line="37" selection-end-column="113" />
+            <state relative-caret-position="119">
+              <caret line="7" column="26" lean-forward="true" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
               <folding>
                 <element signature="e#26#209#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="918">
+              <caret line="54" column="32" lean-forward="true" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -211,11 +126,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="21" column="23" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
+            <state relative-caret-position="323">
+              <caret line="96" column="36" selection-start-line="96" selection-start-column="36" selection-end-line="96" selection-end-column="36" />
               <folding>
                 <element signature="e#34#211#0" expanded="true" />
               </folding>
@@ -244,8 +159,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Samples.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="24" column="61" lean-forward="true" selection-start-line="24" selection-start-column="61" selection-end-line="24" selection-end-column="61" />
+            <state relative-caret-position="255">
+              <caret line="17" column="54" selection-start-line="17" selection-start-column="54" selection-end-line="17" selection-end-column="54" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Histogram.kt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="272">
+              <caret line="16" selection-start-line="16" selection-end-line="16" />
             </state>
           </provider>
         </entry>
@@ -294,7 +218,6 @@
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/CutoffFilter.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/LuminanceFilter.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt" />
-        <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/FFTSamples.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/HistogramSamples.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/SaturationSamples.kt" />
@@ -303,6 +226,7 @@
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/HDRRaster.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Assur.kt" />
         <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt" />
+        <option value="$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt" />
       </list>
     </option>
   </component>
@@ -427,17 +351,17 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="AndroidView" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1534481865857" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1534744293928" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../heroku/kotlin-getting-started" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.0" />
-    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="PsiViewer.ProjectComponent">
@@ -460,7 +384,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Maven.assur-app [package]">
+  <component name="RunManager" selected="Kotlin.me.shutkin.assur.samples.DetailsSamplesKt">
     <configuration default="true" type="Application" factoryName="Application">
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <method v="2">
@@ -626,11 +550,19 @@
       <option name="project" value="LOCAL" />
       <updated>1534226694710</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Integration with the server. Jpeg format. Filtered samples.">
+      <created>1534484531375</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1534484531375</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2835821" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -641,7 +573,7 @@
       <window_info id="Capture Tool" order="6" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32827735" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3672806" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3672806" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39869988" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -658,7 +590,7 @@
       <window_info anchor="right" id="PsiViewer" order="5" weight="0.32995737" />
       <window_info anchor="right" id="Theme Preview" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="7" />
-      <window_info anchor="right" id="Maven Projects" order="8" weight="0.32995737" />
+      <window_info active="true" anchor="right" id="Maven Projects" order="8" visible="true" weight="0.32995737" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -667,7 +599,12 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Zonal filter (not that great yet), a lot of small improvements and lambda moving" />
     <MESSAGE value="Prepare logger for integration, samples in the resources, some improvements" />
-    <option name="LAST_COMMIT_MESSAGE" value="Prepare logger for integration, samples in the resources, some improvements" />
+    <MESSAGE value="Integration with the server. Jpeg format. Filtered samples." />
+    <option name="LAST_COMMIT_MESSAGE" value="Integration with the server. Jpeg format. Filtered samples." />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Hello.kt" />
@@ -683,13 +620,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
         </state>
       </provider>
     </entry>
@@ -730,13 +660,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Histogram.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
-          <caret line="42" column="38" selection-start-line="42" selection-start-column="38" selection-end-line="42" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Window.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
@@ -772,9 +695,10 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/FFTSamples.kt" />
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/LuminanceFilter.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
+        <state relative-caret-position="272">
           <caret line="18" selection-start-line="18" selection-end-line="18" />
           <folding>
             <element signature="e#34#157#0" expanded="true" />
@@ -782,34 +706,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="21" column="50" selection-start-line="21" selection-start-column="50" selection-end-line="21" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="23" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
+        <state relative-caret-position="136">
+          <caret line="13" column="26" selection-start-line="13" selection-start-column="26" selection-end-line="13" selection-end-column="26" />
           <folding>
-            <element signature="e#34#211#0" expanded="true" />
+            <element signature="e#34#268#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/FFTSamples.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/DetailsFilter.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="9" column="44" selection-start-line="9" selection-start-column="44" selection-end-line="9" selection-end-column="44" />
+        <state relative-caret-position="323">
+          <caret line="21" column="50" selection-start-line="21" selection-start-column="50" selection-end-line="21" selection-end-column="50" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/HistogramSamples.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/HDRRaster.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="56" selection-start-line="5" selection-start-column="56" selection-end-line="5" selection-end-column="56" />
+        <state relative-caret-position="510">
+          <caret line="33" column="34" selection-start-line="33" selection-start-column="34" selection-end-line="33" selection-end-column="34" />
         </state>
       </provider>
     </entry>
@@ -827,36 +744,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Samples.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/HistogramSamples.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="24" column="61" lean-forward="true" selection-start-line="24" selection-start-column="61" selection-end-line="24" selection-end-column="61" />
+        <state relative-caret-position="85">
+          <caret line="5" column="56" selection-start-line="5" selection-start-column="56" selection-end-line="5" selection-end-column="56" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/HDRRaster.kt">
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/Samples.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="33" column="34" selection-start-line="33" selection-start-column="34" selection-end-line="33" selection-end-column="34" />
+        <state relative-caret-position="255">
+          <caret line="17" column="54" selection-start-line="17" selection-start-column="54" selection-end-line="17" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Histogram.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/Assur.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="37" column="113" selection-start-line="37" selection-start-column="113" selection-end-line="37" selection-end-column="113" />
+        <state relative-caret-position="119">
+          <caret line="7" column="26" lean-forward="true" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
           <folding>
             <element signature="e#26#209#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/samples/DetailsSamples.kt">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="35" lean-forward="true" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
+        <state relative-caret-position="918">
+          <caret line="54" column="32" lean-forward="true" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/kotlin/me/shutkin/assur/filters/ZonalFilter.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="96" column="36" selection-start-line="96" selection-start-column="36" selection-end-line="96" selection-end-column="36" />
           <folding>
-            <element signature="e#34#268#0" expanded="true" />
+            <element signature="e#34#211#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -902,7 +833,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>1.8</last-edited>
+          <last-edited>10</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -920,6 +851,18 @@
               <list>
                 <option value="0.2" />
                 <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>10</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
               </list>
             </option>
           </splitter-proportions>

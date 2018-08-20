@@ -83,7 +83,7 @@ data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int,
 }
 
 fun buildZones(source: HDRRaster): ZonesData {
-  val zoneSize = Math.max(source.width, source.height) / 20
+  val zoneSize = Math.max(source.width, source.height) / 15
   val horizZones = (source.width + zoneSize - 1) / zoneSize
   val vertZones = (source.height + zoneSize - 1) / zoneSize
   return ZonesData(zoneSize, horizZones, vertZones, DoubleArray(horizZones * vertZones) {

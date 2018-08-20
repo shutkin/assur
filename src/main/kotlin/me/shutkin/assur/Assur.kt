@@ -39,7 +39,7 @@ class Assur(private val context: AssurContext) {
   }
 }
 
-data class AssurContext(val log: (String) -> Unit, val path: String, val imageFormat: String)
+data class AssurContext(val log: (String) -> Unit, val path: String, val detailsFilterEnabled: Boolean = true, val imageFormat: String)
 data class AssurVariantMetadata(val filename: String, val params: List<String>)
 
 fun main(args: Array<String>) {
@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
     return
   }
 
-  val context = AssurContext(log = ::assurLog, path = ".", imageFormat = "png")
+  val context = AssurContext(log = ::assurLog, path = ".", imageFormat = "png", detailsFilterEnabled = true)
 
   val fileToProcess = args[0]
   val imageName = fileToProcess.substring(0, fileToProcess.lastIndexOf('.'))
@@ -94,45 +94,45 @@ private data class VariantData(val raster: HDRRaster,
   }
 }
 
-private fun generateVariants(context: AssurContext, source: HDRRaster): Array<VariantData> {
+private fun generateVariants(context: AssurContext, source: HDRRaster): List<VariantData> {
+  val reduced = reduceSizeFilter(context, source, 720, true)
+  var variants = List(1) { VariantData(reduced, null, null, null, null,
+          null, null, null, null, emptyList()) }
+  if (context.detailsFilterEnabled)
+    variants = generateDetailsVariants(context, variants)
+  variants = generateZonalVariants(context, variants)
+  variants = generateSaturationVariants(context, variants)
+  variants = generateLuminanceVariants(context, variants)
+  variants = variants.map { it.cutOff(context) }
+  return variants
+}
+
+private fun generateDetailsVariants(context: AssurContext, variants: List<VariantData>): List<VariantData> {
   val splines = HashMap<Diapason, CubicSpline>()
   val errors = HashMap<Diapason, Double>()
   val medians = HashMap<Diapason, Double>()
-  val variants = filterVariants(context, generateSaturationVariants(context, generateZonalVariants(context, generateDetailsVariants(context, source))).flatMap { variant ->
+  return filterVariants(context, variants.flatMap { variant ->
+    context.log("zonal index ${variants.indexOf(variant)}")
     List(3) {
       val diapason = getDiapason(it)
-      val result = luminanceFilter(context, variant.raster, diapason, splines[diapason])
+      val result = detailsFilter(context, variant.raster, diapason, splines[diapason])
       if (result.error != null)
         errors[diapason] = result.error
       if (result.median != null)
         medians[diapason] = result.median
       splines[diapason] = result.spline
-      VariantData(result.raster, variant.detailsError, variant.zonalError, variant.saturationError, errors[diapason],
-              variant.detailsMedian, variant.zonalMedian, variant.saturationMedian, medians[diapason], variant.diapasons + diapason)
+      VariantData(result.raster, errors[diapason], null, null, null,
+              medians[diapason], null, null, null, variant.diapasons + diapason)
     }
-  }).toTypedArray()
-  variants.indices.forEach {
-    context.log("errors: ${variants[it].detailsError} ${variants[it].saturationError} ${variants[it].lumError}")
-    variants[it] = variants[it].cutOff(context)
-  }
-  return variants
-}
-
-private fun generateDetailsVariants(context: AssurContext, source: HDRRaster): List<VariantData> {
-  val reduced = reduceSizeFilter(context, source, 720, true)
-  return filterVariants(context, List(3) {
-    val diapason = getDiapason(it)
-    val result = detailsFilter(context, reduced, diapason)
-    VariantData(result.raster, result.error, null, null, null, result.median, null, null, null, listOf(diapason))
   })
 }
 
-private fun generateZonalVariants(context: AssurContext, detailed: List<VariantData>): List<VariantData> {
+private fun generateZonalVariants(context: AssurContext, variants: List<VariantData>): List<VariantData> {
   val splines = HashMap<Diapason, CubicSpline>()
   val errors = HashMap<Diapason, Double>()
   val medians = HashMap<Diapason, Double>()
-  return filterVariants(context, detailed.flatMap { variant ->
-    context.log("zonal index ${detailed.indexOf(variant)}")
+  return filterVariants(context, variants.flatMap { variant ->
+    context.log("zonal index ${variants.indexOf(variant)}")
     List(3) {
       val diapason = getDiapason(it)
       val result = zonalFilter(context, variant.raster, diapason, splines[diapason])
@@ -163,6 +163,26 @@ private fun generateSaturationVariants(context: AssurContext, zoned: List<Varian
       splines[diapason] = result.spline
       VariantData(result.raster, variant.detailsError, variant.zonalError, errors[diapason], null,
               variant.detailsMedian, variant.zonalMedian, medians[diapason], null, variant.diapasons + diapason)
+    }
+  })
+}
+
+private fun generateLuminanceVariants(context: AssurContext, variants: List<VariantData>): List<VariantData> {
+  val splines = HashMap<Diapason, CubicSpline>()
+  val errors = HashMap<Diapason, Double>()
+  val medians = HashMap<Diapason, Double>()
+  return filterVariants(context, variants.flatMap { variant ->
+    context.log("detailed index ${variants.indexOf(variant)}")
+    List(3) {
+      val diapason = getDiapason(it)
+      val result = luminanceFilter(context, variant.raster, diapason, splines[diapason])
+      if (result.error != null)
+        errors[diapason] = result.error
+      if (result.median != null)
+        medians[diapason] = result.median
+      splines[diapason] = result.spline
+      VariantData(result.raster, variant.detailsError, variant.zonalError, variant.saturationError, errors[diapason],
+              variant.detailsMedian, variant.zonalMedian, variant.saturationMedian, medians[diapason], variant.diapasons + diapason)
     }
   })
 }

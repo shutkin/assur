@@ -4,7 +4,7 @@ import me.shutkin.assur.*
 import me.shutkin.assur.samples.deserializeSamples
 import me.shutkin.assur.samples.evalArraysDiffM
 
-private val window: Window = OptimizedWindow(54, (1.0 / 3.0E-5).toInt())
+private val window: Window = OptimizedWindow(64, (1.0 / 6.0E-5).toInt())
 private val smallWindow: Window = StraightWindow(24)
 
 private val detailsSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/details.samples"), 1024)
