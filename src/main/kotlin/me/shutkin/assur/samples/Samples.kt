@@ -4,7 +4,9 @@ import me.shutkin.assur.*
 import me.shutkin.assur.logger.assurLog
 import java.io.*
 
-fun collectSamples(path: String, minValue: Double, maxValue: Double, medianFilter: Double = 0.5, processRaster: (HDRRaster) -> DoubleArray): List<DoubleArray> {
+fun collectSamples(path: String, minValue: Double, maxValue: Double, medianFilter: Double = 0.5,
+                   diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff,
+                   processRaster: (HDRRaster) -> DoubleArray): List<DoubleArray> {
   val allSamples = File(path).listFiles().filter { it.isFile }.mapIndexed { index, file ->
     assurLog("process ${file.name} #$index")
     try {
@@ -19,7 +21,7 @@ fun collectSamples(path: String, minValue: Double, maxValue: Double, medianFilte
   assurLog("Average median: $averageMedian")
   val filteredSamples = allSamples.filter{ getHistogramMedianValue(HistogramData(minValue, maxValue, it), 0.5) > averageMedian }
   assurLog("Filtered samples: ${filteredSamples.size}")
-  return grouping(filteredSamples, 15)
+  return grouping(filteredSamples, 15, diffFunction)
 }
 
 fun saveSamples(samples: List<DoubleArray>, prefix: String) {

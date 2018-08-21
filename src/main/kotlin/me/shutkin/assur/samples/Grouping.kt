@@ -3,13 +3,13 @@ package me.shutkin.assur.samples
 import me.shutkin.assur.HistogramData
 import me.shutkin.assur.getHistogramMedianValue
 
-fun grouping(samples: List<DoubleArray>, groupsNumber: Int): List<DoubleArray> {
-  val averageDiff = findAverageDiff(samples)
+fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff): List<DoubleArray> {
+  val averageDiff = findAverageDiff(samples, diffFunction)
   var diffFactor = 5.0
   while (diffFactor > 0) {
     val groups = MutableList<MutableSet<Int>>(1) { HashSet() }
     samples.forEachIndexed { index, sample ->
-      val maxDiffsByGroup = groups.map { group -> group.map { evalArraysDiff(sample, samples[it]) }.max() ?: 0.0 }
+      val maxDiffsByGroup = groups.map { group -> group.map { diffFunction(sample, samples[it]) }.max() ?: 0.0 }
       val minGroupDiff = maxDiffsByGroup.min() ?: 0.0
       if (minGroupDiff < averageDiff * diffFactor) {
         groups[maxDiffsByGroup.indexOf(minGroupDiff)].add(index)
@@ -30,11 +30,11 @@ fun grouping(samples: List<DoubleArray>, groupsNumber: Int): List<DoubleArray> {
   throw Exception("Can't collect $groupsNumber groups")
 }
 
-private fun findAverageDiff(samples: List<DoubleArray>): Double {
+private fun findAverageDiff(samples: List<DoubleArray>, diffFunction: (DoubleArray, DoubleArray) -> Double): Double {
   var sumDiffs = 0.0
   var count = 0
   samples.forEachIndexed { index, sample0 ->
-    (index + 1 until samples.size).forEach { sumDiffs += evalArraysDiff(sample0, samples[it]); count++ }
+    (index + 1 until samples.size).forEach { sumDiffs += diffFunction(sample0, samples[it]); count++ }
   }
   return sumDiffs / count
 }

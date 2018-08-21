@@ -23,7 +23,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val reduced = reduceSizeFilter(context, source, 256, false)
     val reducedZones = buildZones(reduced)
     val averageReducedLum = reducedZones.zonesLums.average()
-    val bestSpline = adjuster.findSpline(context, { spline ->
+    val bestSpline = adjuster.findSpline(context, ::evalArraysDiffM) { spline ->
       val result = HDRRaster(reduced.width, reduced.height) {
         val x = it % reduced.width
         val y = it / reduced.width
@@ -36,8 +36,8 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
       val resultZones = buildZones(result)
       val resultAverage = resultZones.zonesLums.average()
       buildHistogram(0.0, 128.0, 128, resultZones.zonesLums.size) { Math.abs(resultAverage - resultZones.zonesLums[it]) }.histogram
-    }, ::evalArraysDiffM)
-    error = adjuster.smallestError
+    }
+    error = adjuster.correctnessImprovement
     median = adjuster.bestMedian
     bestSpline
 

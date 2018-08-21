@@ -15,15 +15,15 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
       index in diapason.getStartIndex(saturationSamples.size)..(diapason.getEndIndex(saturationSamples.size) - 1) }.toTypedArray()
     val reduced = reduceSizeFilter(context, source, 384, false)
     val adjuster = SplineAdjuster(samples, 0.0, 1.0)
-    val bestSpline = adjuster.findSpline(context, { spline ->
+    val bestSpline = adjuster.findSpline(context, ::evalArraysDiff) { spline ->
       buildHistogram(0.0, 1.0, 128, reduced.data.size) {
         val s = reduced.data[it].saturation
         val factor = spline.interpolate(s) / (s + 0.001)
         val rgb = reduced.data[it].adjustSaturation(factor)
         rgb.saturation
       }.histogram
-    }, ::evalArraysDiff)
-    error = adjuster.smallestError
+    }
+    error = adjuster.correctnessImprovement
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline

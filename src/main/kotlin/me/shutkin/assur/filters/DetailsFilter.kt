@@ -23,7 +23,7 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
     val adjuster = SplineAdjuster(samples, 0.0, 64.0)
     adjuster.adjustPoints = 3
     adjuster.levels = 4
-    val bestSpline = adjuster.findSpline(context, { testSpline ->
+    val bestSpline = adjuster.findSpline(context, ::evalArraysDiffM) { testSpline ->
       val testRaster = HDRRaster(reduced.width, reduced.height) {
         val originalLum = reduced.data[it].luminance
         val diff = originalLum - reducedBlur[it]
@@ -33,8 +33,8 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
       }
       val testBlur = reducedWindow.apply(testRaster)
       buildHistogram(0.0, 64.0, 1024, reduced.data.size) { Math.abs(testRaster.data[it].luminance - testBlur[it]) }.histogram
-    }, ::evalArraysDiffM)
-    error = adjuster.smallestError
+    }
+    error = adjuster.correctnessImprovement
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline

@@ -62,12 +62,11 @@ fun rgbGetLuminance(r: Double, g: Double, b: Double) = Math.sqrt(0.299 * r * r +
 
 fun rgbChannelToInt(c: Float, min: Double, factor: Double): Int {
   val result = Math.round(factor * (c - min)).toInt()
-  return result
-  /*return when {
+  return when {
     result < 0 -> 0
     result > 255 -> 255
     else -> result
-  }*/
+  }
 }
 
 fun rgbToHsl(rNotNormalized: Double, gNotNormalized: Double, bNotNormalized: Double): DoubleArray {

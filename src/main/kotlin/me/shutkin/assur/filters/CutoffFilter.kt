@@ -12,7 +12,7 @@ fun cutoffFilter(context: AssurContext, source: HDRRaster): HDRRaster {
       else -> sourcePixel.b.toDouble()
     }
   }
-  val histogramData = buildHistogram(allChannels.min()!!, allChannels.max()!!, 256, allChannels.size, { allChannels[it] })
+  val histogramData = buildHistogram(allChannels.min()!!, allChannels.max()!!, 256, allChannels.size) { allChannels[it] }
   val threshold = 1.0 / 8192.0
   val min = getHistogramLowValue(histogramData, threshold).toFloat()
   val max = getHistogramHighValue(histogramData, threshold).toFloat()

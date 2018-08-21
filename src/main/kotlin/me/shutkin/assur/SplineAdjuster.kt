@@ -5,17 +5,19 @@ class SplineAdjuster (private val samples: Array<DoubleArray>, private val minVa
   var adjustPoints = 4
   var steps = 4
   var levels = 3
-  var smallestError = Double.MAX_VALUE
+  var correctnessImprovement = 0.0
   var bestMedian = 0.0
 
-  fun findSpline(context: AssurContext, testFunction: (CubicSpline) -> DoubleArray, errorFunction: (DoubleArray, DoubleArray) -> Double): CubicSpline {
-    smallestError = Double.MAX_VALUE
+  fun findSpline(context: AssurContext, errorFunction: (DoubleArray, DoubleArray) -> Double, testFunction: (CubicSpline) -> DoubleArray): CubicSpline {
+    val initialError = findInitialError(testFunction, errorFunction)
+    context.log("Initial error $initialError")
     var selectedSampleIndex = 0
     var bestHistogram: DoubleArray? = null
     val range = (maxValue - minValue) / (2.0 * adjustPoints)
     val keyPoints = DoubleArray(adjustPoints + 2) { when(it) { 0 -> minValue; adjustPoints + 1 -> maxValue; else -> minValue + range * (1 + (it - 1) * 2) } }
     val bestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
     val nextBestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
+    var smallestError = Double.MAX_VALUE
     (1 .. levels).forEach { level ->
       context.log("Spline points adjustment level $level")
       for (variant in 0 until Math.pow(steps.toDouble(), bestPoints.size.toDouble()).toInt()) {
@@ -36,7 +38,8 @@ class SplineAdjuster (private val samples: Array<DoubleArray>, private val minVa
       bestPoints.indices.forEach { bestPoints[it] = nextBestPoints[it] }
     }
     bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestHistogram!!), 0.5)
-    context.log("best sample $selectedSampleIndex, error $smallestError, median $bestMedian")
+    correctnessImprovement = initialError / smallestError
+    context.log("best sample $selectedSampleIndex, improvement $correctnessImprovement, median $bestMedian")
     if (bestHistogram != null && filenamePrefix != null) {
       saveHistogram(bestHistogram!!, filenamePrefix + "_histogram.png")
       saveHistogram(samples[selectedSampleIndex], filenamePrefix + "_histogram_sample.png")
@@ -44,6 +47,12 @@ class SplineAdjuster (private val samples: Array<DoubleArray>, private val minVa
     val spline = CubicSpline(keyPoints, keyPoints.sliceArray(0 until 1) + bestPoints + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size))
     context.log(spline.toString())
     return spline
+  }
+
+  private fun findInitialError(testFunction: (CubicSpline) -> DoubleArray, errorFunction: (DoubleArray, DoubleArray) -> Double): Double {
+    val flatSpline = CubicSpline(doubleArrayOf(minValue, maxValue), doubleArrayOf(minValue, maxValue))
+    val hist = testFunction(flatSpline)
+    return samples.map { errorFunction(hist, it) }.min() ?: 0.0
   }
 }
 
