@@ -68,6 +68,8 @@ fun main(args: Array<String>) {
     context.log("duration ${System.currentTimeMillis() - startTime}")
     saveHDRRaster(raster, FileOutputStream(imageName + "_result.png"))
   } else {
+    context.log("median quantum: details ${detailsReferences.getMedianQuantum()}, zones ${zonesReferences.getMedianQuantum()}, " +
+            "saturation ${saturationReferences.getMedianQuantum()}, luminance ${luminanceReferences.getMedianQuantum()}")
     val variants = generateVariants(context, original)
     context.log("duration ${System.currentTimeMillis() - startTime}")
     variants.forEachIndexed { index, variant -> saveHDRRaster(variant.raster, FileOutputStream("${index}_${imageName}_${variant.diapasons.joinToString("_")}.png")) }
@@ -82,13 +84,13 @@ private data class VariantData(val raster: HDRRaster,
           lumImprovements, detailsMedian, zonalMedian, saturationMedian, lumMedian, diapasons)
   val improvement: Double get() = (detailsImprovements ?: 1.0) * (zonalImprovements ?: 1.0) * (saturationImprovements ?: 1.0) * (lumImprovements ?: 1.0)
   fun isCloseTo(v1: VariantData): Boolean {
-    if (detailsMedian != null && v1.detailsMedian != null && Math.abs(detailsMedian - v1.detailsMedian) > 0.00375)
+    if (detailsMedian != null && v1.detailsMedian != null && Math.abs(detailsMedian - v1.detailsMedian) > detailsReferences.getMedianQuantum())
       return false
-    if (zonalMedian != null && v1.zonalMedian != null && Math.abs(zonalMedian - v1.zonalMedian) > 0.03)
+    if (zonalMedian != null && v1.zonalMedian != null && Math.abs(zonalMedian - v1.zonalMedian) > zonesReferences.getMedianQuantum())
       return false
-    if (saturationMedian != null && v1.saturationMedian != null && Math.abs(saturationMedian - v1.saturationMedian) > 0.013)
+    if (saturationMedian != null && v1.saturationMedian != null && Math.abs(saturationMedian - v1.saturationMedian) > saturationReferences.getMedianQuantum())
       return false
-    if (lumMedian != null && v1.lumMedian != null && Math.abs(lumMedian - v1.lumMedian) > 0.045)
+    if (lumMedian != null && v1.lumMedian != null && Math.abs(lumMedian - v1.lumMedian) > luminanceReferences.getMedianQuantum())
       return false
     return true
   }
@@ -209,4 +211,5 @@ enum class Diapason {
   fun getEndIndex(size: Int) = when (this) { LOW -> (size * 0.33).toInt(); MID -> (size * 0.66).toInt(); ALL, HIGH -> size }
 }
 
-data class FilterResult(val raster: HDRRaster, val spline: CubicSpline, val improvement: Double? = null, val median: Double? = null)
+data class FilterResult(val raster: HDRRaster, val spline: CubicSpline, val selectedReference: Int? = null,
+                        val improvement: Double? = null, val median: Double? = null)

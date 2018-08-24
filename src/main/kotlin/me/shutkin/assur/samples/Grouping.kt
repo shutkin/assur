@@ -2,10 +2,11 @@ package me.shutkin.assur.samples
 
 import me.shutkin.assur.HistogramData
 import me.shutkin.assur.getHistogramMedianValue
+import me.shutkin.assur.logger.assurLog
 
-fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff): List<DoubleArray> {
+fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff): List<Reference> {
   val averageDiff = findAverageDiff(samples, diffFunction)
-  var diffFactor = 5.0
+  var diffFactor = 3.0
   while (diffFactor > 0) {
     val groups = MutableList<MutableSet<Int>>(1) { HashSet() }
     samples.forEachIndexed { index, sample ->
@@ -21,14 +22,20 @@ fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (Doubl
     }
     val minSamplesInGroup = samples.size / 80
     val filtered = groups.filter { it.size >= minSamplesInGroup }
-    if (filtered.size >= groupsNumber)
-      return filtered.map { group ->
+    assurLog("Build ${filtered.size} samples group with diff factor $diffFactor")
+    if (filtered.size >= groupsNumber) {
+      val referencesData = filtered.map { group ->
         DoubleArray(samples[0].size) { group.map { sampleIndex -> samples[sampleIndex][it] }.sum() / group.size }
       }.sortedBy { getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) }
-    diffFactor -= 0.2
+      return referencesData.mapIndexed { index, data -> Reference(index, evalAverageDiff(samples, data, diffFunction), data) }
+    }
+    diffFactor -= 0.05
   }
   throw Exception("Can't collect $groupsNumber groups")
 }
+
+private fun evalAverageDiff(samples: List<DoubleArray>, referenceData: DoubleArray, diffFunction: (DoubleArray, DoubleArray) -> Double) =
+  samples.map { diffFunction(it, referenceData) }.average()
 
 private fun findAverageDiff(samples: List<DoubleArray>, diffFunction: (DoubleArray, DoubleArray) -> Double): Double {
   var sumDiffs = 0.0

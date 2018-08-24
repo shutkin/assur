@@ -1,58 +1,57 @@
 package me.shutkin.assur
 
-class SplineAdjuster (private val samples: Array<DoubleArray>, private val minValue: Double, private val maxValue: Double) {
+import me.shutkin.assur.samples.Reference
+
+class SplineAdjuster (private val references: List<Reference>, private val minValue: Double, private val maxValue: Double) {
   var filenamePrefix: String? = null
   var adjustPoints = 4
   var steps = 4
   var levels = 3
-  var correctnessImprovement = 0.0
+  var bestRelativeCorrectness = 0.0
   var bestMedian = 0.0
+  var selectedRefIndex = 0
 
-  fun findSpline(context: AssurContext, errorFunction: (DoubleArray, DoubleArray) -> Double, testFunction: (CubicSpline) -> DoubleArray): CubicSpline {
-    val initialError = findInitialError(testFunction, errorFunction)
-    context.log("Initial error $initialError")
-    var selectedSampleIndex = 0
-    var bestHistogram: DoubleArray? = null
+  fun findSpline(context: AssurContext, diffFunction: (DoubleArray, DoubleArray) -> Double, testFunction: (CubicSpline) -> DoubleArray): CubicSpline {
+    var bestData: DoubleArray? = null
     val range = (maxValue - minValue) / (2.0 * adjustPoints)
-    val keyPoints = DoubleArray(adjustPoints + 2) { when(it) { 0 -> minValue; adjustPoints + 1 -> maxValue; else -> minValue + range * (1 + (it - 1) * 2) } }
+    val keyPoints = DoubleArray(adjustPoints + 2) {
+      when(it) {
+        0 -> minValue
+        adjustPoints + 1 -> maxValue
+        else -> minValue + range * (1 + (it - 1) * 2) }
+    }
     val bestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
     val nextBestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
-    var smallestError = Double.MAX_VALUE
     (1 .. levels).forEach { level ->
       context.log("Spline points adjustment level $level")
+      var bestLevelCorrectness = 0.0
       for (variant in 0 until Math.pow(steps.toDouble(), bestPoints.size.toDouble()).toInt()) {
         val points = getVariant(bestPoints, 0.45 * range / level, steps, variant)
         val splinePoints = keyPoints.sliceArray(0 until 1) + points + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size)
         val spline = CubicSpline(keyPoints, splinePoints)
-        val testHistogram = testFunction(spline)
-        val errors = samples.map { errorFunction(testHistogram, it) }
-        val minError = errors.min() ?: Double.MAX_VALUE
-        if (minError < smallestError) {
+        val testData = testFunction(spline)
+        val correctness = references.map { it.averageError / diffFunction(testData, it.data) }
+        val maxCorrectness = correctness.max() ?: 0.0
+        if (maxCorrectness > bestLevelCorrectness) {
           points.indices.forEach { nextBestPoints[it] = points[it] }
-          smallestError = minError
-          selectedSampleIndex = errors.indexOf(minError)
-          bestHistogram = testHistogram
+          bestLevelCorrectness = maxCorrectness
+          selectedRefIndex = correctness.indexOf(maxCorrectness)
+          bestData = testData
         }
       }
-      context.log("smallest error $smallestError")
+      context.log("best level relative correctness $bestLevelCorrectness")
       bestPoints.indices.forEach { bestPoints[it] = nextBestPoints[it] }
     }
-    bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestHistogram!!), 0.5)
-    correctnessImprovement = initialError / smallestError
-    context.log("best sample $selectedSampleIndex, improvement $correctnessImprovement, median $bestMedian")
-    if (bestHistogram != null && filenamePrefix != null) {
-      saveHistogram(bestHistogram!!, filenamePrefix + "_histogram.png")
-      saveHistogram(samples[selectedSampleIndex], filenamePrefix + "_histogram_sample.png")
+    bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestData!!), 0.5)
+
+    context.log("best sample ${references[selectedRefIndex].id}, correctness $bestRelativeCorrectness, median $bestMedian")
+    if (bestData != null && filenamePrefix != null) {
+      saveHistogram(bestData!!, filenamePrefix + "_histogram.png")
+      saveHistogram(references[selectedRefIndex].data, filenamePrefix + "_histogram_ref.png")
     }
     val spline = CubicSpline(keyPoints, keyPoints.sliceArray(0 until 1) + bestPoints + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size))
     context.log(spline.toString())
     return spline
-  }
-
-  private fun findInitialError(testFunction: (CubicSpline) -> DoubleArray, errorFunction: (DoubleArray, DoubleArray) -> Double): Double {
-    val flatSpline = CubicSpline(doubleArrayOf(minValue, maxValue), doubleArrayOf(minValue, maxValue))
-    val hist = testFunction(flatSpline)
-    return samples.map { errorFunction(hist, it) }.min() ?: 0.0
   }
 }
 

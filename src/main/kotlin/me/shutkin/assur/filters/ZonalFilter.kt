@@ -1,22 +1,25 @@
 package me.shutkin.assur.filters
 
 import me.shutkin.assur.*
-import me.shutkin.assur.samples.deserializeSamples
+import me.shutkin.assur.samples.buildZones
+import me.shutkin.assur.samples.deserializeReferences
 import me.shutkin.assur.samples.evalArraysDiffM
+import me.shutkin.assur.samples.getReferences
 import java.util.*
 import kotlin.collections.HashMap
 
-private val zonesSamples = deserializeSamples(object {}.javaClass.getResourceAsStream("/zones.samples"), 128)
+val zonesReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/zones.ref"), 128)
 
-fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null,
+                selectedReference: Int = -1): FilterResult {
   context.log("ZonalFilter start, diapason $diapason")
 
-  var error: Double? = null
+  var selectedRefIndex: Int? = null
+  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
-    val samples = zonesSamples.filterIndexed { index, _ ->
-      index in diapason.getStartIndex(zonesSamples.size)..(diapason.getEndIndex(zonesSamples.size) - 1) }.toTypedArray()
-    val adjuster = SplineAdjuster(samples, 0.0, 128.0)
+    val references = getReferences(zonesReferences.refs, diapason, selectedReference)
+    val adjuster = SplineAdjuster(references, 0.0, 128.0)
     adjuster.adjustPoints = 3
     adjuster.steps = 3
     adjuster.levels = 3
@@ -37,7 +40,8 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
       val resultAverage = resultZones.zonesLums.average()
       buildHistogram(0.0, 128.0, 128, resultZones.zonesLums.size) { Math.abs(resultAverage - resultZones.zonesLums[it]) }.histogram
     }
-    error = adjuster.correctnessImprovement
+    selectedRefIndex = adjuster.selectedRefIndex
+    correctness = adjuster.bestRelativeCorrectness
     median = adjuster.bestMedian
     bestSpline
 
@@ -55,7 +59,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = (averageLum + correctedDiff + 1.0) / (zonalLum + 1.0)
     source.data[it].multiply(factor)
-  }, spline, error, median)
+  }, spline, selectedReference, correctness, median)
 }
 
 data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int, val zonesLums: DoubleArray) {
@@ -80,17 +84,6 @@ data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int,
     result = 31 * result + Arrays.hashCode(zonesLums)
     return result
   }
-}
-
-fun buildZones(source: HDRRaster): ZonesData {
-  val zoneSize = Math.max(source.width, source.height) / 15
-  val horizZones = (source.width + zoneSize - 1) / zoneSize
-  val vertZones = (source.height + zoneSize - 1) / zoneSize
-  return ZonesData(zoneSize, horizZones, vertZones, DoubleArray(horizZones * vertZones) {
-    val zoneX = it % horizZones
-    val zoneY = it / horizZones
-    calculateZoneLum(source, zoneX, zoneY, zoneSize)
-  })
 }
 
 private val gaussFunction = HashMap<Int, Double>()
@@ -123,16 +116,4 @@ private fun zone(x: Int, y: Int, zones: ZonesData): Double {
     }
   }
   return sum / sumWeight
-}
-
-private fun calculateZoneLum(raster: HDRRaster, zoneX: Int, zoneY: Int, zoneSize: Int): Double {
-  val zoneWidth = if ((zoneX + 1) * zoneSize < raster.width) zoneSize else raster.width - zoneX * zoneSize
-  val zoneHeight = if ((zoneY + 1) * zoneSize < raster.height) zoneSize else raster.height - zoneY * zoneSize
-  var sum = 0.0
-  for (y in zoneY * zoneSize until zoneY * zoneSize + zoneHeight) {
-    for (x in zoneX * zoneSize until zoneX * zoneSize + zoneWidth) {
-      sum += raster.data[y * raster.width + x].luminance
-    }
-  }
-  return sum / (zoneWidth * zoneHeight)
 }
