@@ -15,7 +15,6 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
   context.log("ZonalFilter start, diapason $diapason")
 
   var selectedRefIndex: Int? = null
-  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
     val references = getReferences(zonesReferences.refs, diapason, selectedReference)
@@ -41,7 +40,6 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
       buildHistogram(0.0, 128.0, 128, resultZones.zonesLums.size) { Math.abs(resultAverage - resultZones.zonesLums[it]) }.histogram
     }
     selectedRefIndex = adjuster.selectedRefIndex
-    correctness = adjuster.bestRelativeCorrectness
     median = adjuster.bestMedian
     bestSpline
 
@@ -59,7 +57,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = (averageLum + correctedDiff + 1.0) / (zonalLum + 1.0)
     source.data[it].multiply(factor)
-  }, spline, selectedReference, correctness, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) zonesReferences.refs[selectedRefIndex].popularity else null, median)
 }
 
 data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int, val zonesLums: DoubleArray) {

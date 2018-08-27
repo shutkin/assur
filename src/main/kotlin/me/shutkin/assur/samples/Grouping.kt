@@ -6,7 +6,7 @@ import me.shutkin.assur.logger.assurLog
 
 fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff): List<Reference> {
   val averageDiff = findAverageDiff(samples, diffFunction)
-  var diffFactor = 3.0
+  var diffFactor = 2.0
   while (diffFactor > 0) {
     val groups = MutableList<MutableSet<Int>>(1) { HashSet() }
     samples.forEachIndexed { index, sample ->
@@ -25,11 +25,13 @@ fun grouping(samples: List<DoubleArray>, groupsNumber: Int, diffFunction: (Doubl
     assurLog("Build ${filtered.size} samples group with diff factor $diffFactor")
     if (filtered.size >= groupsNumber) {
       val referencesData = filtered.map { group ->
-        DoubleArray(samples[0].size) { group.map { sampleIndex -> samples[sampleIndex][it] }.sum() / group.size }
-      }.sortedBy { getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) }
-      return referencesData.mapIndexed { index, data -> Reference(index, evalAverageDiff(samples, data, diffFunction), data) }
+        Reference(0, 0.0, group.size.toDouble() / samples.size,
+          DoubleArray(samples[0].size) { group.map { sampleIndex -> samples[sampleIndex][it] }.sum() / group.size })
+      }.sortedBy { getHistogramMedianValue(HistogramData(0.0, 1.0, it.data), 0.5) }
+      return referencesData.mapIndexed { index, ref ->
+        Reference(index, evalAverageDiff(samples, ref.data, diffFunction), ref.popularity, ref.data) }
     }
-    diffFactor -= 0.05
+    diffFactor *= 0.95
   }
   throw Exception("Can't collect $groupsNumber groups")
 }

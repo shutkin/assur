@@ -7,7 +7,6 @@ class SplineAdjuster (private val references: List<Reference>, private val minVa
   var adjustPoints = 4
   var steps = 4
   var levels = 3
-  var bestRelativeCorrectness = 0.0
   var bestMedian = 0.0
   var selectedRefIndex = 0
 
@@ -44,7 +43,7 @@ class SplineAdjuster (private val references: List<Reference>, private val minVa
     }
     bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestData!!), 0.5)
 
-    context.log("best sample ${references[selectedRefIndex].id}, correctness $bestRelativeCorrectness, median $bestMedian")
+    context.log("best sample ${references[selectedRefIndex].id}, popularity ${references[selectedRefIndex].popularity}, median $bestMedian")
     if (bestData != null && filenamePrefix != null) {
       saveHistogram(bestData!!, filenamePrefix + "_histogram.png")
       saveHistogram(references[selectedRefIndex].data, filenamePrefix + "_histogram_ref.png")

@@ -11,7 +11,6 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
                      referenceIndex: Int = -1): FilterResult {
   context.log("SaturationFilter start, diapason $diapason")
   var selectedRefIndex: Int? = null
-  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
     val references = getReferences(saturationReferences.refs, diapason, referenceIndex)
@@ -26,7 +25,6 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
       }.histogram
     }
     selectedRefIndex = adjuster.selectedRefIndex
-    correctness = adjuster.bestRelativeCorrectness
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline
@@ -35,5 +33,5 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
     val s = source.data[it].saturation
     val factor = spline.interpolate(s) / (s + 0.001)
     source.data[it].adjustSaturation(factor)
-  }, spline, selectedRefIndex, correctness, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) saturationReferences.refs[selectedRefIndex].popularity else null, median)
 }

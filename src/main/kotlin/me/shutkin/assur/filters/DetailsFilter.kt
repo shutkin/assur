@@ -14,7 +14,6 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
                   referenceIndex: Int = -1): FilterResult {
   context.log("DetailsFilter start, diapason $diapason")
   var selectedRefIndex: Int? = null
-  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
     val references = getReferences(detailsReferences.refs, diapason, referenceIndex)
@@ -36,7 +35,6 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
       buildHistogram(0.0, 64.0, 1024, reduced.data.size) { Math.abs(testRaster.data[it].luminance - testBlur[it]) }.histogram
     }
     selectedRefIndex = adjuster.selectedRefIndex
-    correctness = adjuster.bestRelativeCorrectness
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline
@@ -48,5 +46,5 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = 1.0 * (blur[it] + correctedDiff + 1.0) / (originalLum + 1)
     source.data[it].multiply(factor)
-  }, spline, selectedRefIndex, correctness, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) detailsReferences.refs[selectedRefIndex].popularity else null, median)
 }

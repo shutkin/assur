@@ -11,7 +11,6 @@ fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason
                     referenceIndex: Int = -1): FilterResult {
   context.log("LuminanceFilter start, diapason $diapason")
   var selectedRefIndex: Int? = null
-  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
     val references = getReferences(luminanceReferences.refs, diapason, referenceIndex)
@@ -26,7 +25,6 @@ fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason
       }.histogram
     }
     selectedRefIndex = adjuster.selectedRefIndex
-    correctness = adjuster.bestRelativeCorrectness
     median = adjuster.bestMedian
     bestSpline
   } else predefinedSpline
@@ -34,5 +32,5 @@ fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason
   return FilterResult(HDRRaster(source.width, source.height) {
     val l = source.data[it].luminance
     source.data[it].multiply(spline.interpolate(l) / (l + 0.1))
-  }, spline, selectedRefIndex, correctness, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) luminanceReferences.refs[selectedRefIndex].popularity else null, median)
 }

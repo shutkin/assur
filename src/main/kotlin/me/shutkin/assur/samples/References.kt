@@ -4,7 +4,7 @@ import me.shutkin.assur.*
 import me.shutkin.assur.logger.assurLog
 import java.io.*
 
-data class Reference(val id: Int, val averageError: Double, val data: DoubleArray) {
+data class Reference(val id: Int, val averageError: Double, val popularity: Double, val data: DoubleArray) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -22,7 +22,7 @@ data class Reference(val id: Int, val averageError: Double, val data: DoubleArra
 }
 
 data class References(val medianMin: Double, val medianMax: Double, val refs: List<Reference>) {
-  fun getMedianQuantum() = (medianMax - medianMin) / 18.0
+  fun getMedianQuantum() = (medianMax - medianMin) / 22.0
 }
 
 fun collectReferences(path: String, medianFilter: Double = 0.5,
@@ -42,23 +42,24 @@ fun collectReferences(path: String, medianFilter: Double = 0.5,
   assurLog("Average median: $averageMedian")
   val filteredSamples = allSamples.filter{ getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) > averageMedian }
   assurLog("Filtered samples: ${filteredSamples.size}")
-  return grouping(filteredSamples, 15, diffFunction)
+  return grouping(filteredSamples, 21, diffFunction)
 }
 
 fun saveReferences(references: List<Reference>, prefix: String) {
   references.forEach { reference ->
     saveHistogram(reference.data, "${prefix}_ref_${reference.id}.png")
-    assurLog(reference.data.joinToString { it.toString() })
+    assurLog(reference.toString())
   }
   serializeReferences(FileOutputStream("$prefix.ref"), references)
 }
 
-private fun serializeReferences(stream: OutputStream, samples: List<Reference>) {
+private fun serializeReferences(stream: OutputStream, references: List<Reference>) {
   val objectStream = ObjectOutputStream(stream)
-  objectStream.writeInt(samples.size)
-  samples.forEach { sample ->
-    objectStream.writeDouble(sample.averageError)
-    sample.data.forEach { objectStream.writeDouble(it) }
+  objectStream.writeInt(references.size)
+  references.forEach { ref ->
+    objectStream.writeDouble(ref.averageError)
+    objectStream.writeDouble(ref.popularity)
+    ref.data.forEach { objectStream.writeDouble(it) }
   }
   objectStream.flush()
   objectStream.close()
@@ -68,10 +69,12 @@ fun deserializeReferences(stream: InputStream, sampleSize: Int): References {
   val objectStream = ObjectInputStream(stream)
   val size = objectStream.readInt()
   val dataArrays = Array(size) { DoubleArray(sampleSize) }
-  val averageErrors = ArrayList<Double>(size)
+  val averageErrors = DoubleArray(size)
+  val popularities = DoubleArray(size)
   for (referenceIndex in dataArrays.indices)
     try {
-      averageErrors.add(objectStream.readDouble())
+      averageErrors[referenceIndex] = objectStream.readDouble()
+      popularities[referenceIndex] = objectStream.readDouble()
       for (index in dataArrays[referenceIndex].indices)
         dataArrays[referenceIndex][index] = objectStream.readDouble()
     } catch (e: Exception) {
@@ -81,7 +84,8 @@ fun deserializeReferences(stream: InputStream, sampleSize: Int): References {
     }
   stream.close()
   val medians = dataArrays.map { getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) }
-  return References(medians.min() ?: 0.0, medians.max() ?: 1.0, List(size) { Reference(it, averageErrors[it], dataArrays[it]) })
+  return References(medians.min() ?: 0.0, medians.max() ?: 1.0,
+          List(size) { Reference(it, averageErrors[it], popularities[it], dataArrays[it]) })
 }
 
 fun getReferences(allReferences: List<Reference>, diapason: Diapason, referenceIndex: Int) =
