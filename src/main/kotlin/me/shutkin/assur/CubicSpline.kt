@@ -10,7 +10,7 @@ private class SplineTuple(var x: Double, y: Double) {
 }
 
 class CubicSpline(private val x: DoubleArray, private val y: DoubleArray) {
-  private val splines: Array<SplineTuple> = Array(x.size, { i -> SplineTuple(x[i], y[i]) })
+  private val splines: Array<SplineTuple> = Array(x.size) { i -> SplineTuple(x[i], y[i]) }
 
   init {
     splines[splines.size - 1].c = 0.0
@@ -23,11 +23,11 @@ class CubicSpline(private val x: DoubleArray, private val y: DoubleArray) {
     for (i in 1 until splines.size - 1) {
       val hi = x[i] - x[i - 1]
       val hi1 = x[i + 1] - x[i]
-      val C = 2.0 * (hi + hi1)
-      val F = 6.0 * ((y[i + 1] - y[i]) / hi1 - (y[i] - y[i - 1]) / hi)
-      val z = hi * alpha[i - 1] + C
+      val c = 2.0 * (hi + hi1)
+      val f = 6.0 * ((y[i + 1] - y[i]) / hi1 - (y[i] - y[i - 1]) / hi)
+      val z = hi * alpha[i - 1] + c
       alpha[i] = -hi1 / z
-      beta[i] = (F - hi * beta[i - 1]) / z
+      beta[i] = (f - hi * beta[i - 1]) / z
     }
 
     for (i in splines.size - 2 downTo 1)

@@ -10,19 +10,19 @@ import kotlin.collections.HashMap
 
 val zonesReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/zones.ref"), 128)
 
-fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null,
-                selectedReference: Int = -1): FilterResult {
-  context.log("ZonalFilter start, diapason $diapason")
+fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+  context.log("ZonalFilter start, " + if (predefinedSpline == null) "diapason $diapason" else "spline $predefinedSpline")
 
   var selectedRefIndex: Int? = null
   var median: Double? = null
+  var correctness: Double? = null
   val spline = if (predefinedSpline == null) {
-    val references = getReferences(zonesReferences.refs, diapason, selectedReference)
+    val references = getReferences(zonesReferences.refs, diapason)
     val adjuster = SplineAdjuster(references, 0.0, 128.0)
     adjuster.adjustPoints = 3
     adjuster.steps = 3
     adjuster.levels = 3
-    val reduced = reduceSizeFilter(context, source, 256, false)
+    val reduced = reduceSizeFilter(context, source, 320, false)
     val reducedZones = buildZones(reduced)
     val averageReducedLum = reducedZones.zonesLums.average()
     val bestSpline = adjuster.findSpline(context, ::evalArraysDiffM) { spline ->
@@ -39,8 +39,9 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
       val resultAverage = resultZones.zonesLums.average()
       buildHistogram(0.0, 128.0, 128, resultZones.zonesLums.size) { Math.abs(resultAverage - resultZones.zonesLums[it]) }.histogram
     }
-    selectedRefIndex = adjuster.selectedRefIndex
+    selectedRefIndex = adjuster.selectedRef!!.id
     median = adjuster.bestMedian
+    correctness = adjuster.bestCorrectness
     bestSpline
 
   } else predefinedSpline
@@ -57,7 +58,8 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = (averageLum + correctedDiff + 1.0) / (zonalLum + 1.0)
     source.data[it].multiply(factor)
-  }, spline, selectedRefIndex, if (selectedRefIndex != null) zonesReferences.refs[selectedRefIndex].popularity else null, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) zonesReferences.refs[selectedRefIndex].popularity else null,
+          median, correctness)
 }
 
 data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int, val zonesLums: DoubleArray) {

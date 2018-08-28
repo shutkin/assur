@@ -8,7 +8,8 @@ class SplineAdjuster (private val references: List<Reference>, private val minVa
   var steps = 4
   var levels = 3
   var bestMedian = 0.0
-  var selectedRefIndex = 0
+  var bestCorrectness = 0.0
+  var selectedRef: Reference? = null
 
   fun findSpline(context: AssurContext, diffFunction: (DoubleArray, DoubleArray) -> Double, testFunction: (CubicSpline) -> DoubleArray): CubicSpline {
     var bestData: DoubleArray? = null
@@ -21,7 +22,7 @@ class SplineAdjuster (private val references: List<Reference>, private val minVa
     }
     val bestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
     val nextBestPoints = DoubleArray(adjustPoints) { keyPoints[it + 1] }
-    (1 .. levels).forEach { level ->
+    for (level in 1 .. levels) {
       context.log("Spline points adjustment level $level")
       var bestLevelCorrectness = 0.0
       for (variant in 0 until Math.pow(steps.toDouble(), bestPoints.size.toDouble()).toInt()) {
@@ -34,19 +35,22 @@ class SplineAdjuster (private val references: List<Reference>, private val minVa
         if (maxCorrectness > bestLevelCorrectness) {
           points.indices.forEach { nextBestPoints[it] = points[it] }
           bestLevelCorrectness = maxCorrectness
-          selectedRefIndex = correctness.indexOf(maxCorrectness)
+          selectedRef = references[correctness.indexOf(maxCorrectness)]
           bestData = testData
         }
       }
+      if (bestLevelCorrectness < bestCorrectness)
+        break
       context.log("best level relative correctness $bestLevelCorrectness")
       bestPoints.indices.forEach { bestPoints[it] = nextBestPoints[it] }
+      bestCorrectness = bestLevelCorrectness
     }
     bestMedian = getHistogramMedianValue(HistogramData(0.0, 1.0, bestData!!), 0.5)
 
-    context.log("best sample ${references[selectedRefIndex].id}, popularity ${references[selectedRefIndex].popularity}, median $bestMedian")
-    if (bestData != null && filenamePrefix != null) {
-      saveHistogram(bestData!!, filenamePrefix + "_histogram.png")
-      saveHistogram(references[selectedRefIndex].data, filenamePrefix + "_histogram_ref.png")
+    context.log("best sample ${selectedRef!!.id}, popularity ${selectedRef!!.popularity}, median $bestMedian")
+    if (filenamePrefix != null) {
+      saveHistogram(bestData, filenamePrefix + "_histogram.png")
+      saveHistogram(selectedRef!!.data, filenamePrefix + "_histogram_ref.png")
     }
     val spline = CubicSpline(keyPoints, keyPoints.sliceArray(0 until 1) + bestPoints + keyPoints.sliceArray(keyPoints.size - 1 until keyPoints.size))
     context.log(spline.toString())

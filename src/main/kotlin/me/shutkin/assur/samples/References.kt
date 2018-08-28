@@ -22,12 +22,12 @@ data class Reference(val id: Int, val averageError: Double, val popularity: Doub
 }
 
 data class References(val medianMin: Double, val medianMax: Double, val refs: List<Reference>) {
-  fun getMedianQuantum() = (medianMax - medianMin) / 22.0
+  fun getMedianQuantum() = (medianMax - medianMin) / 16.0
 }
 
 fun collectReferences(path: String, medianFilter: Double = 0.5,
-                   diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff,
-                   processRaster: (HDRRaster) -> DoubleArray): List<Reference> {
+                      diffFunction: (DoubleArray, DoubleArray) -> Double = ::evalArraysDiff,
+                      processRaster: (HDRRaster) -> DoubleArray): List<Reference> {
   val allSamples = File(path).listFiles().filter { it.isFile }.mapIndexed { index, file ->
     assurLog("process ${file.name} #$index")
     try {
@@ -40,7 +40,7 @@ fun collectReferences(path: String, medianFilter: Double = 0.5,
   assurLog("Total samples: ${allSamples.size}")
   val averageMedian = allSamples.map { getHistogramMedianValue(HistogramData(0.0, 1.0, it), medianFilter) }.average()
   assurLog("Average median: $averageMedian")
-  val filteredSamples = allSamples.filter{ getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) > averageMedian }
+  val filteredSamples = allSamples.filter { getHistogramMedianValue(HistogramData(0.0, 1.0, it), 0.5) > averageMedian }
   assurLog("Filtered samples: ${filteredSamples.size}")
   return grouping(filteredSamples, 21, diffFunction)
 }
@@ -88,8 +88,5 @@ fun deserializeReferences(stream: InputStream, sampleSize: Int): References {
           List(size) { Reference(it, averageErrors[it], popularities[it], dataArrays[it]) })
 }
 
-fun getReferences(allReferences: List<Reference>, diapason: Diapason, referenceIndex: Int) =
-        if (referenceIndex >= 0)
-          List(1) { allReferences[referenceIndex] }
-        else
-          allReferences.slice(diapason.getStartIndex(allReferences.size) until diapason.getEndIndex(allReferences.size))
+fun getReferences(allReferences: List<Reference>, diapason: Diapason) =
+        allReferences.slice(diapason.getStartIndex(allReferences.size) until diapason.getEndIndex(allReferences.size))

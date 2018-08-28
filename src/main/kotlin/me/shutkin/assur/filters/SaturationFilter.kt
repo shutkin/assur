@@ -7,13 +7,13 @@ import me.shutkin.assur.samples.getReferences
 
 val saturationReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/saturation.ref"), 128)
 
-fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null,
-                     referenceIndex: Int = -1): FilterResult {
-  context.log("SaturationFilter start, diapason $diapason")
+fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+  context.log("SaturationFilter start, " + if (predefinedSpline == null) "diapason $diapason" else "spline $predefinedSpline")
   var selectedRefIndex: Int? = null
   var median: Double? = null
+  var correctness: Double? = null
   val spline = if (predefinedSpline == null) {
-    val references = getReferences(saturationReferences.refs, diapason, referenceIndex)
+    val references = getReferences(saturationReferences.refs, diapason)
     val reduced = reduceSizeFilter(context, source, 384, false)
     val adjuster = SplineAdjuster(references, 0.0, 1.0)
     val bestSpline = adjuster.findSpline(context, ::evalArraysDiff) { spline ->
@@ -24,8 +24,9 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
         rgb.saturation
       }.histogram
     }
-    selectedRefIndex = adjuster.selectedRefIndex
+    selectedRefIndex = adjuster.selectedRef!!.id
     median = adjuster.bestMedian
+    correctness = adjuster.bestCorrectness
     bestSpline
   } else predefinedSpline
 
@@ -33,5 +34,6 @@ fun saturationFilter(context: AssurContext, source: HDRRaster, diapason: Diapaso
     val s = source.data[it].saturation
     val factor = spline.interpolate(s) / (s + 0.001)
     source.data[it].adjustSaturation(factor)
-  }, spline, selectedRefIndex, if (selectedRefIndex != null) saturationReferences.refs[selectedRefIndex].popularity else null, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) saturationReferences.refs[selectedRefIndex].popularity else null,
+          median, correctness)
 }

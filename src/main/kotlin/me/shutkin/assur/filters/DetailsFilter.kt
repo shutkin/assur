@@ -10,14 +10,14 @@ private val smallWindow: Window = StraightWindow(24)
 
 val detailsReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/details.ref"), 1024)
 
-fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null,
-                  referenceIndex: Int = -1): FilterResult {
-  context.log("DetailsFilter start, diapason $diapason")
+fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+  context.log("DetailsFilter start, " + if (predefinedSpline == null) "diapason $diapason" else "spline $predefinedSpline")
   var selectedRefIndex: Int? = null
+  var correctness: Double? = null
   var median: Double? = null
   val spline = if (predefinedSpline == null) {
-    val references = getReferences(detailsReferences.refs, diapason, referenceIndex)
-    val reduced = reduceSizeFilter(context, source, 256, false)
+    val references = getReferences(detailsReferences.refs, diapason)
+    val reduced = reduceSizeFilter(context, source, 320, false)
     val reducedWindow = StraightWindow(6)
     val reducedBlur = reducedWindow.apply(reduced)
     val adjuster = SplineAdjuster(references, 0.0, 64.0)
@@ -34,8 +34,9 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
       val testBlur = reducedWindow.apply(testRaster)
       buildHistogram(0.0, 64.0, 1024, reduced.data.size) { Math.abs(testRaster.data[it].luminance - testBlur[it]) }.histogram
     }
-    selectedRefIndex = adjuster.selectedRefIndex
+    selectedRefIndex = adjuster.selectedRef!!.id
     median = adjuster.bestMedian
+    correctness = adjuster.bestCorrectness
     bestSpline
   } else predefinedSpline
 
@@ -46,5 +47,6 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = 1.0 * (blur[it] + correctedDiff + 1.0) / (originalLum + 1)
     source.data[it].multiply(factor)
-  }, spline, selectedRefIndex, if (selectedRefIndex != null) detailsReferences.refs[selectedRefIndex].popularity else null, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) detailsReferences.refs[selectedRefIndex].popularity else null,
+          median, correctness)
 }

@@ -7,13 +7,13 @@ import me.shutkin.assur.samples.getReferences
 
 val luminanceReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/luminance.ref"), 256)
 
-fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason, predefinedSpline: CubicSpline? = null,
-                    referenceIndex: Int = -1): FilterResult {
-  context.log("LuminanceFilter start, diapason $diapason")
+fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
+  context.log("LuminanceFilter start, " + if (predefinedSpline == null) "diapason $diapason" else "spline $predefinedSpline")
   var selectedRefIndex: Int? = null
   var median: Double? = null
+  var correctness: Double? = null
   val spline = if (predefinedSpline == null) {
-    val references = getReferences(luminanceReferences.refs, diapason, referenceIndex)
+    val references = getReferences(luminanceReferences.refs, diapason)
     val reduced = reduceSizeFilter(context, source, 384, false)
     val adjuster = SplineAdjuster(references, 0.0, 255.0)
     adjuster.levels = 4
@@ -24,13 +24,15 @@ fun luminanceFilter(context: AssurContext, source: HDRRaster, diapason: Diapason
         testRGB.luminance
       }.histogram
     }
-    selectedRefIndex = adjuster.selectedRefIndex
+    selectedRefIndex = adjuster.selectedRef!!.id
     median = adjuster.bestMedian
+    correctness = adjuster.bestCorrectness
     bestSpline
   } else predefinedSpline
 
   return FilterResult(HDRRaster(source.width, source.height) {
     val l = source.data[it].luminance
     source.data[it].multiply(spline.interpolate(l) / (l + 0.1))
-  }, spline, selectedRefIndex, if (selectedRefIndex != null) luminanceReferences.refs[selectedRefIndex].popularity else null, median)
+  }, spline, selectedRefIndex, if (selectedRefIndex != null) luminanceReferences.refs[selectedRefIndex].popularity else null,
+          median, correctness)
 }
