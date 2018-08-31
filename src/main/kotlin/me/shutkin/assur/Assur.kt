@@ -82,7 +82,7 @@ private data class VariantData(val raster: HDRRaster, val filtersInfo: Map<Filte
   fun cutOff(context: AssurContext) = VariantData(cutoffFilter(context, raster), filtersInfo)
   val popularity: Double get() = filtersInfo.values.map { it.popularity }.sum()
   val correctness: Double get() = filtersInfo.values.map { it.correctness }.sum()
-  val rank: Double get() = filtersInfo.values.map { it.popularity * it.correctness }.sum()
+  val rank: Double get() = popularity * correctness
 
   fun isCloseTo(v1: VariantData): Boolean {
     FilterType.values().forEach {

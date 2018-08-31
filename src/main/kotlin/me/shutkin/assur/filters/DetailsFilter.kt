@@ -5,9 +5,6 @@ import me.shutkin.assur.samples.deserializeReferences
 import me.shutkin.assur.samples.evalArraysDiffM
 import me.shutkin.assur.samples.getReferences
 
-private val window: Window = OptimizedWindow(64, (1.0 / 6.0E-5).toInt())
-private val smallWindow: Window = StraightWindow(24)
-
 val detailsReferences = deserializeReferences(object {}.javaClass.getResourceAsStream("/details.ref"), 1024)
 
 fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = Diapason.ALL, predefinedSpline: CubicSpline? = null): FilterResult {
@@ -18,7 +15,7 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
   val spline = if (predefinedSpline == null) {
     val references = getReferences(detailsReferences.refs, diapason)
     val reduced = reduceSizeFilter(context, source, 320, false)
-    val reducedWindow = StraightWindow(6)
+    val reducedWindow = getWindow(reduced)
     val reducedBlur = reducedWindow.apply(reduced)
     val adjuster = SplineAdjuster(references, 0.0, 64.0)
     adjuster.adjustPoints = 3
@@ -40,7 +37,7 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
     bestSpline
   } else predefinedSpline
 
-  val blur = (if (source.width > 1100 || source.height > 1100) window else smallWindow).apply(source)
+  val blur = getWindow(source).apply(source)
   return FilterResult(HDRRaster(source.width, source.height) {
     val originalLum = source.data[it].luminance
     val diff = originalLum - blur[it]
@@ -49,4 +46,9 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
     source.data[it].multiply(factor)
   }, spline, selectedRefIndex, if (selectedRefIndex != null) detailsReferences.refs[selectedRefIndex].popularity else null,
           median, correctness)
+}
+
+private fun getWindow(image: HDRRaster): Window {
+  val r = Math.max(image.width, image.height).toDouble() / 15.0
+  return OptimizedWindow((r * 0.5).toInt(), (r * r).toInt())
 }
