@@ -87,7 +87,7 @@ data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int,
 }
 
 private val gaussFunction = HashMap<Int, Double>()
-private const val neighborRadius = 6
+private const val neighborRadius = 4
 private const val discreet = 65536
 private const val sigma = 0.84089642 * neighborRadius / 3.0
 

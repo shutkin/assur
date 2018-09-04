@@ -49,6 +49,6 @@ fun detailsFilter(context: AssurContext, source: HDRRaster, diapason: Diapason =
 }
 
 private fun getWindow(image: HDRRaster): Window {
-  val r = Math.max(image.width, image.height).toDouble() / 15.0
+  val r = Math.max(image.width, image.height).toDouble() / 13.0
   return OptimizedWindow((r * 0.5).toInt(), (r * r).toInt())
 }

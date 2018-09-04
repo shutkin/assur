@@ -6,15 +6,27 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.*
+import kotlin.collections.ArrayList
+
+val appProperties = loadProperties()
+
+private fun loadProperties(): Properties {
+  val resourceStream = object {}.javaClass.getResourceAsStream("/app.properties")
+  val properties = Properties()
+  properties.load(resourceStream)
+  return properties
+}
 
 class Assur(private val context: AssurContext) {
   fun variants(imageStream: InputStream): List<AssurVariantMetadata> {
-    val startTime = System.currentTimeMillis()
+    context.log("app version ${appProperties["appVersion"]}")
 
+    val startTime = System.currentTimeMillis()
     val source = readHDRRaster(imageStream)
     val variants = generateVariants(context, source)
-
     context.log("duration ${System.currentTimeMillis() - startTime}")
+
     return variants.mapIndexed { index, variant ->
       val filename = "$index.${context.imageFormat}"
       saveHDRRaster(variant.raster, File(context.path, filename).outputStream(), context.imageFormat)
@@ -24,13 +36,13 @@ class Assur(private val context: AssurContext) {
   }
 
   fun process(imageStream: InputStream, splines: Map<String, CubicSpline>) {
-    val startTime = System.currentTimeMillis()
+    context.log("app version ${appProperties["appVersion"]}")
 
-    context.log(splines.map { it.key + ": " + it.value.toString() }.joinToString(separator = " "))
+    val startTime = System.currentTimeMillis()
     var raster = readHDRRaster(imageStream)
     raster = reduceSizeFilter(context, raster, 1920, true)
-    raster = detailsFilter(context, raster, predefinedSpline = splines[FilterType.DETAILS.name]).raster
     raster = zonalFilter(context, raster, predefinedSpline = splines[FilterType.ZONAL.name]).raster
+    raster = detailsFilter(context, raster, predefinedSpline = splines[FilterType.DETAILS.name]).raster
     raster = saturationFilter(context, raster, predefinedSpline = splines[FilterType.SATURATION.name]).raster
     raster = luminanceFilter(context, raster, predefinedSpline = splines[FilterType.LUMINANCE.name]).raster
     raster = cutoffFilter(context, raster)
@@ -49,8 +61,11 @@ fun main(args: Array<String>) {
   }
 
   val context = AssurContext(log = ::assurLog, path = ".", imageFormat = "png", detailsFilterEnabled = true)
+  context.log("v${appProperties["app.version"]}")
 
   val fileToProcess = args[0]
+  context.log("process file $fileToProcess")
+
   val imageName = fileToProcess.substring(0, fileToProcess.lastIndexOf('.'))
   val original = readHDRRaster(FileInputStream(fileToProcess))
 
@@ -60,8 +75,8 @@ fun main(args: Array<String>) {
     context.log("selected diapasons ${diapasons.joinToString()}")
 
     var raster = reduceSizeFilter(context, original, 1920, true)
-    raster = detailsFilter(context, raster, diapasons[0]).raster
-    raster = zonalFilter(context, raster, diapasons[1]).raster
+    raster = zonalFilter(context, raster, diapasons[0]).raster
+    raster = detailsFilter(context, raster, diapasons[1]).raster
     raster = saturationFilter(context, raster, diapasons[2]).raster
     raster = luminanceFilter(context, raster, diapasons[3]).raster
     raster = cutoffFilter(context, raster)
@@ -71,7 +86,7 @@ fun main(args: Array<String>) {
     val variants = generateVariants(context, original)
     context.log("duration ${System.currentTimeMillis() - startTime}")
     variants.forEachIndexed { index, variant ->
-      saveHDRRaster(variant.raster, FileOutputStream("${index}_${imageName}_${variant.printRefIndices()}.png")) }
+      saveHDRRaster(variant.raster, FileOutputStream("${index}_${imageName}_${variant.printDiapasons()}.png")) }
   }
 }
 
@@ -101,7 +116,14 @@ private data class VariantData(val raster: HDRRaster, val filtersInfo: Map<Filte
     return true
   }
 
-  fun printDiapasons() = filtersInfo.values.joinToString { "${it.filter}: ${it.diapason}" }
+  fun calcDiff(v1: VariantData) =
+    FilterType.values().filter {
+      val filter0 = filtersInfo[it]
+      val filter1 = v1.filtersInfo[it]
+      filter0 != null && filter1 != null && filter0.diapason != filter1.diapason
+    }.count()
+
+  fun printDiapasons() = filtersInfo.values.joinToString(separator = ".") { "${it.filter}_${it.diapason}" }
 
   fun printRefIndices() = filtersInfo.values.joinToString(separator = "_") { "${it.filter}.${it.refIndex}" }
 }
@@ -112,8 +134,8 @@ private fun generateVariants(context: AssurContext, source: HDRRaster): List<Var
   val reduced = reduceSizeFilter(context, source, 720, true)
   var variants = List(1) { VariantData(reduced, emptyMap()) }
   if (context.detailsFilterEnabled)
-    variants = generateFilterVariants(context, variants, FilterType.DETAILS)
-  variants = generateFilterVariants(context, variants, FilterType.ZONAL)
+    variants = generateFilterVariants(context, variants, FilterType.ZONAL)
+  variants = generateFilterVariants(context, variants, FilterType.DETAILS)
   variants = generateFilterVariants(context, variants, FilterType.SATURATION)
   variants = generateFilterVariants(context, variants, FilterType.LUMINANCE)
   variants = variants.map { it.cutOff(context) }
@@ -155,12 +177,31 @@ private fun generateFilterVariants(context: AssurContext, variants: List<Variant
 }
 
 private fun filterVariants(context: AssurContext, variants: List<VariantData>): List<VariantData> {
-  val result = variants.map { v0 ->
+  val notCloseVariants = variants.map { v0 ->
     val closeVariants = variants.filter { v1 -> v0.isCloseTo(v1) }.sortedByDescending { it.rank }
     val bestVariant = closeVariants[0]
     bestVariant
-  }.distinct().sortedByDescending { it.rank }
-  val resultLimit = if (result.size <= 12) result else result.subList(0, 12)
+  }.distinct()
+
+  val sortedVariants = ArrayList<VariantData>()
+  val unsortedVariants = LinkedList<VariantData>()
+  unsortedVariants.addAll(notCloseVariants)
+  while (unsortedVariants.isNotEmpty()) {
+    val diffRanks = unsortedVariants.map { unsorted ->
+      sortedVariants.map { sorted ->
+        unsorted.calcDiff(sorted)
+      }.sum()
+    }
+    val maxDiff = diffRanks.max()
+    val maxDiffVariants = unsortedVariants.filterIndexed { index, _ ->
+      diffRanks[index] == maxDiff
+    }.sortedByDescending { it.rank }
+    val bestVariant = maxDiffVariants[0]
+    sortedVariants.add(bestVariant)
+    unsortedVariants.remove(bestVariant)
+  }
+
+  val resultLimit = if (sortedVariants.size <= 12) sortedVariants else sortedVariants.subList(0, 12)
   context.log("${variants.size} -> ${resultLimit.size}")
   resultLimit.forEach { context.log("${it.printDiapasons()} ${it.popularity} ${it.correctness}") }
   return resultLimit
