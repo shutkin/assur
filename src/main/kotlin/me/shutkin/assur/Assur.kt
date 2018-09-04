@@ -20,7 +20,7 @@ private fun loadProperties(): Properties {
 
 class Assur(private val context: AssurContext) {
   fun variants(imageStream: InputStream): List<AssurVariantMetadata> {
-    context.log("app version ${appProperties["appVersion"]}")
+    context.log("app version ${appProperties["app.version"]}")
 
     val startTime = System.currentTimeMillis()
     val source = readHDRRaster(imageStream)
@@ -36,7 +36,7 @@ class Assur(private val context: AssurContext) {
   }
 
   fun process(imageStream: InputStream, splines: Map<String, CubicSpline>) {
-    context.log("app version ${appProperties["appVersion"]}")
+    context.log("app version ${appProperties["app.version"]}")
 
     val startTime = System.currentTimeMillis()
     var raster = readHDRRaster(imageStream)
