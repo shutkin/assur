@@ -87,31 +87,31 @@ data class ZonesData(val zoneSize: Int, val horizZones: Int, val vertZones: Int,
 }
 
 private val gaussFunction = HashMap<Int, Double>()
-private const val neighborRadius = 4
+private const val neighborRadius = 5
 private const val discreet = 65536
 private const val sigma = 0.84089642 * neighborRadius / 3.0
 
 private fun zone(x: Int, y: Int, zones: ZonesData): Double {
-  val zoneX = x / zones.zoneSize
-  val zoneY = y / zones.zoneSize
   var sum = 0.0
   var sumWeight = 0.0
-  for (neighborZoneY in (zoneY - neighborRadius .. zoneY + neighborRadius)) {
-    if (neighborZoneY < 0 || neighborZoneY > zones.vertZones - 1)
+  for (zoneY in 0 until zones.vertZones) {
+    val dy = y - zoneY * zones.zoneSize - zones.zoneSize / 2
+    if (Math.abs(dy) > neighborRadius * zones.zoneSize)
       continue
-    val dy = (if (y == neighborZoneY * zones.zoneSize) 1.0 else (y - neighborZoneY * zones.zoneSize).toDouble()) / zones.zoneSize
-    for (neighborZoneX in (zoneX - neighborRadius .. zoneX + neighborRadius)) {
-      if (neighborZoneX < 0 || neighborZoneX > zones.horizZones - 1)
+
+    for (zoneX in 0 until zones.horizZones) {
+      val dx = x - zoneX * zones.zoneSize - zones.zoneSize / 2
+      if (Math.abs(dx) > neighborRadius * zones.zoneSize)
         continue
-      val dx = (if (x == neighborZoneX * zones.zoneSize) 1.0 else (x - neighborZoneX * zones.zoneSize).toDouble()) / zones.zoneSize
-      val d = dx * dx + dy * dy
+
+      val d = if (dx == 0 && dy == 0) 1.0 else (dx.toDouble() * dx + dy.toDouble() * dy) / (zones.zoneSize * zones.zoneSize)
       val discreetD = (d * discreet).toInt()
       val weight = gaussFunction[discreetD] ?: {
         val newGaussValue = Math.exp(-d / (2.0 * sigma * sigma))
         gaussFunction[discreetD] = newGaussValue
         newGaussValue
       }()
-      sum += zones.zonesLums[neighborZoneY * zones.horizZones + neighborZoneX] * weight
+      sum += zones.zonesLums[zoneY * zones.horizZones + zoneX] * weight
       sumWeight += weight
     }
   }

@@ -22,7 +22,7 @@ data class Reference(val id: Int, val averageError: Double, val popularity: Doub
 }
 
 data class References(val medianMin: Double, val medianMax: Double, val refs: List<Reference>) {
-  fun getMedianQuantum() = (medianMax - medianMin) / 16.0
+  fun getMedianQuantum() = (medianMax - medianMin) / 28.0
 }
 
 fun collectReferences(path: String, medianFilter: Double = 0.5,

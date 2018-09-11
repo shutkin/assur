@@ -61,7 +61,7 @@ fun main(args: Array<String>) {
   }
 
   val context = AssurContext(log = ::assurLog, path = ".", imageFormat = "png", detailsFilterEnabled = true)
-  context.log("v${appProperties["app.version"]}")
+  context.log("version ${appProperties["app.version"]}")
 
   val fileToProcess = args[0]
   context.log("process file $fileToProcess")
