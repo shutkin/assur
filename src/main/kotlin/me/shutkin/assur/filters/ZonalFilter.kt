@@ -26,7 +26,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val reducedZones = buildZones(reduced)
     val averageReducedLum = reducedZones.zonesLums.average()
     val bestSpline = adjuster.findSpline(context, ::evalArraysDiffM) { spline ->
-      val result = HDRRaster(reduced.width, reduced.height) {
+      val result = HDRRaster(reduced.width, reduced.height, parallelArrayGeneration(reduced.width * reduced.height) {
         val x = it % reduced.width
         val y = it / reduced.width
         val zonalLum = zone(x, y, reducedZones)
@@ -34,7 +34,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
         val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
         val factor = (averageReducedLum + correctedDiff + 1.0) / (zonalLum + 1.0)
         reduced.data[it].multiply(factor)
-      }
+      })
       val resultZones = buildZones(result)
       val resultAverage = resultZones.zonesLums.average()
       buildHistogram(0.0, 128.0, 128, resultZones.zonesLums.size) { Math.abs(resultAverage - resultZones.zonesLums[it]) }.histogram
@@ -43,14 +43,13 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     median = adjuster.bestMedian
     correctness = adjuster.bestCorrectness
     bestSpline
-
   } else predefinedSpline
 
   val zones = buildZones(source)
   context.log("zone size: ${zones.zoneSize}, horizontal: ${zones.horizZones}, vertical: ${zones.vertZones}")
   val averageLum = zones.zonesLums.average()
   context.log("Average lum $averageLum")
-  return FilterResult(HDRRaster(source.width, source.height) {
+  return FilterResult(HDRRaster(source.width, source.height, parallelArrayGeneration(source.width * source.height) {
     val x = it % source.width
     val y = it / source.width
     val zonalLum = zone(x, y, zones)
@@ -58,7 +57,7 @@ fun zonalFilter(context: AssurContext, source: HDRRaster, diapason: Diapason = D
     val correctedDiff = spline.interpolate(Math.abs(diff)) * (if (diff < 0) -1 else 1)
     val factor = (averageLum + correctedDiff + 1.0) / (zonalLum + 1.0)
     source.data[it].multiply(factor)
-  }, spline, selectedRefIndex, if (selectedRefIndex != null) zonesReferences.refs[selectedRefIndex].popularity else null,
+  }), spline, selectedRefIndex, if (selectedRefIndex != null) zonesReferences.refs[selectedRefIndex].popularity else null,
           median, correctness)
 }
 

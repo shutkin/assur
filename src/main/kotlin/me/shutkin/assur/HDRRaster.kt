@@ -5,8 +5,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import javax.imageio.ImageIO
 
-class HDRRaster(val width: Int, val height: Int, func: (Int) -> RGB) {
-  val data = Array(width * height, func)
+class HDRRaster(val width: Int, val height: Int, val data: Array<RGB>) {
+  constructor(width: Int, height: Int, func: (Int) -> RGB): this(width, height, Array(width * height, func))
 }
 
 fun readHDRRaster(stream: InputStream): HDRRaster {

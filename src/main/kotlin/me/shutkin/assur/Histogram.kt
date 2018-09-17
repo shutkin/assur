@@ -1,18 +1,28 @@
 package me.shutkin.assur
 
+import me.shutkin.assur.filters.MAX_SUB_ARRAYS
 import java.io.FileOutputStream
+import java.util.concurrent.atomic.AtomicInteger
 
 class HistogramData(val minValue: Double, val maxValue: Double, val histogram: DoubleArray)
 
 fun buildHistogram(minValue: Double, maxValue: Double, precision: Int, dataSize: Int, dataSource: (Int) -> Double): HistogramData {
-  val data = HistogramData(minValue, maxValue, DoubleArray(precision))
-  val step = 1.0 / dataSize
-  (0 until dataSize).forEach {
-    val index = ((dataSource(it) - data.minValue) * (data.histogram.size - 1) / (data.maxValue - data.minValue)).toInt()
-    if (index >= 0 && index < data.histogram.size)
-      data.histogram[index] += step
+  val counters = Array(precision) { AtomicInteger(0) }
+  val blockSize = Math.ceil(dataSize.toDouble() / 16.0).toInt()
+  val blocksNum = Math.ceil(dataSize.toDouble() / blockSize).toInt()
+  (0 until blocksNum).map { blockIndex ->
+    val blockStart = blockIndex * blockSize
+    val blockEndUnbound = (blockIndex + 1) * blockSize
+    val blockEnd = if (blockEndUnbound > dataSize) dataSize else blockEndUnbound
+    (blockStart until blockEnd).forEach {
+      val index = ((dataSource(it) - minValue) * (precision - 1) / (maxValue - minValue)).toInt()
+      if (index in 0 until precision)
+        counters[index].incrementAndGet()
+    }
   }
-  return data
+  return HistogramData(minValue, maxValue, DoubleArray(precision) {
+    counters[it].get().toDouble() / dataSize
+  })
 }
 
 fun getHistogramLowValue(data: HistogramData, threshold: Double) =

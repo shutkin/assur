@@ -3,6 +3,7 @@ package me.shutkin.assur.samples
 import me.shutkin.assur.HDRRaster
 import me.shutkin.assur.buildHistogram
 import me.shutkin.assur.filters.ZonesData
+import me.shutkin.assur.filters.parallelArrayGeneration
 
 fun main(args: Array<String>) {
   val references = collectReferences(args[0], 0.0, ::evalArraysDiffM) { raster ->
@@ -17,17 +18,21 @@ fun buildZones(source: HDRRaster): ZonesData {
   val zoneSize = Math.max(source.width, source.height) / 15
   val horizZones = (source.width + zoneSize - 1) / zoneSize
   val vertZones = (source.height + zoneSize - 1) / zoneSize
-  return ZonesData(zoneSize, horizZones, vertZones, DoubleArray(horizZones * vertZones) {
+  val zonesArray = parallelArrayGeneration(horizZones * vertZones) {
     val zoneX = it % horizZones
     val zoneY = it / horizZones
     calculateZoneLum(source, zoneX, zoneY, zoneSize)
-  })
+  }.toDoubleArray()
+  return ZonesData(zoneSize, horizZones, vertZones, zonesArray)
 }
+
+// 76122
 
 private fun calculateZoneLum(raster: HDRRaster, zoneX: Int, zoneY: Int, zoneSize: Int): Double {
   val zoneWidth = if ((zoneX + 1) * zoneSize < raster.width) zoneSize else raster.width - zoneX * zoneSize
   val zoneHeight = if ((zoneY + 1) * zoneSize < raster.height) zoneSize else raster.height - zoneY * zoneSize
   var sum = 0.0
+
   for (y in zoneY * zoneSize until zoneY * zoneSize + zoneHeight) {
     for (x in zoneX * zoneSize until zoneX * zoneSize + zoneWidth) {
       sum += raster.data[y * raster.width + x].luminance
